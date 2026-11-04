@@ -140,8 +140,7 @@ main.wrap { padding-block: 24px 48px; display: grid; gap: 28px; }
 /* Тренировка */
 .session-top { display: flex; gap: 14px; align-items: flex-end; }
 .pg { display: flex; gap: 10px; flex: 1; min-width: 0; }
-.pg-sec { display: grid; gap: 5px; min-width: 0; flex: var(--n, 1); }
-.pg-sec:nth-child(1) { flex: 3; } .pg-sec:nth-child(2) { flex: 1; } .pg-sec:nth-child(3) { flex: 4; } .pg-sec:nth-child(4) { flex: 1; }
+.pg-sec { display: grid; gap: 5px; min-width: 0; }
 .pg-lbl { font: 500 .7rem var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pg-sec.on .pg-lbl { color: var(--accent); }
 .pg-cells { display: flex; gap: 3px; }
@@ -237,7 +236,7 @@ mark.err sup { font: 500 .62rem var(--mono); color: var(--mark); margin-left: 1p
 .wstats dt, .tstats dt, .sum-secs dt { font: 500 .7rem var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
 .wstats dd, .sum-secs dd { margin: 0; font: 600 1.15rem var(--display); font-variant-numeric: tabular-nums; }
 .usage { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
-details.model p { margin-top: 8px; padding: 12px 14px; border-left: 3px solid var(--ok); background: var(--ok-soft); border-radius: 0 8px 8px 0; }
+details.model p { white-space: pre-line; margin-top: 8px; padding: 12px 14px; border-left: 3px solid var(--ok); background: var(--ok-soft); border-radius: 0 8px 8px 0; }
 .self { display: grid; gap: 8px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .tog { position: relative; cursor: pointer; }
@@ -253,6 +252,8 @@ details.model p { margin-top: 8px; padding: 12px 14px; border-left: 3px solid va
 .summary .big { font-size: 1.6em; color: var(--accent); }
 .sum-secs { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin: 0; }
 .banner { background: var(--ok-soft); color: var(--ok); padding: 12px 16px; border-radius: 10px; font-weight: 600; }
+.banner.warn { background: var(--warn-soft); color: var(--warn); }
+.manuscript.plain { border-left-color: var(--accent); background: var(--accent-soft); }
 .changes { list-style: none; padding: 0; margin: 0; display: grid; }
 .changes li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .delta { font: 500 .85rem var(--mono); font-variant-numeric: tabular-nums; min-width: 10ch; text-align: right; }
@@ -262,10 +263,13 @@ details.model p { margin-top: 8px; padding: 12px 14px; border-left: 3px solid va
 /* Карта */
 .band { font: 500 .74rem var(--mono); color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 6px; vertical-align: 3px; margin-left: 6px; }
 .tlist { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
-.trow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); text-decoration: none; }
+.trow { display: grid; grid-template-columns: 2.2em minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); text-decoration: none; }
 .trow:hover { border-color: var(--accent); }
 .trow.s-current { border-color: var(--warn); box-shadow: inset 3px 0 0 var(--warn); }
 .trow.s-planned { background: transparent; border-style: dashed; color: var(--muted); }
+.tnum { font: 600 .95rem var(--display); color: var(--muted); font-variant-numeric: tabular-nums; }
+.s-passed .tnum { color: var(--ok); }
+.s-current .tnum { color: var(--warn); }
 .tname { display: grid; font-weight: 600; min-width: 0; }
 .tname small { color: var(--muted); font-weight: 400; }
 .tstat { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
@@ -322,7 +326,8 @@ input[type=range] { accent-color: var(--accent); width: 200px; max-width: 100%; 
   .weak li { grid-template-columns: minmax(0, 1fr) auto; }
   .weak li .weak-m { grid-column: 1; }
   .weak li .btn { grid-row: 1 / span 2; grid-column: 2; }
-  .trow { grid-template-columns: 1fr; }
+  .trow { grid-template-columns: 2em minmax(0, 1fr); }
+  .trow .tstat { grid-column: 2; }
   .tstat { justify-content: flex-start; }
   .form-grid { grid-template-columns: 1fr; gap: 6px; }
   .form-grid > label { margin-top: 8px; }

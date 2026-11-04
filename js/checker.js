@@ -151,69 +151,69 @@ window.EG = window.EG || {};
 
   // Каждое правило: re (глобальный) + msg + fix(match) → строка-исправление или null; test(match) → bool
   const RULES = [
-    { topic: "e_be", re: /(?<!\b(?:make|makes|made|making|get|gets|got|keep|keeps|kept|let|find|found|leave|left|want|wants|wanted|thank|am|is|are|was|were|do|does|did|will|would|can|could|should|have|has|had|see|saw|feel)\s+)\b(I|you|we|they|he|she)\s+(interested|tired|bored|excited|afraid|sure|ready|busy|happy|sad|good at|bad at|from|sorry|late|hungry|nervous|worried|keen on|fond of|responsible for|able to|\d{1,2} years old)\b/gi,
+    { topic: "b1_be", re: /(?<!\b(?:make|makes|made|making|get|gets|got|keep|keeps|kept|let|find|found|leave|left|want|wants|wanted|thank|am|is|are|was|were|do|does|did|will|would|can|could|should|have|has|had|see|saw|feel)\s+)\b(I|you|we|they|he|she)\s+(interested|tired|bored|excited|afraid|sure|ready|busy|happy|sad|good at|bad at|from|sorry|late|hungry|nervous|worried|keen on|fond of|responsible for|able to|\d{1,2} years old)\b/gi,
       msg: "Похоже, пропущен be: I am interested, he is tired.", fix: (m) => m[1] + " " + beFor(m[1]) + " " + m[2] },
-    { topic: "e_be", re: /(?<!\b(?:am|is|are|was|were|be|been|keep|keeps|kept|see|saw|seen|watch|watched|hear|heard|imagine|mind|stop|stopped|like|love|hate|enjoy|have|has|had|let|catch|caught|find|found|without|about|of|for|by)\s+)\b(I|you|we|they|he|she)\s+(?!(?:bring|sing|ring|swing|sting|cling|fling|spring|string|wring|thing|nothing|something|anything|everything)\b)([a-z]+ing)\b/gi,
+    { topic: "b1_be", re: /(?<!\b(?:am|is|are|was|were|be|been|keep|keeps|kept|see|saw|seen|watch|watched|hear|heard|imagine|mind|stop|stopped|like|love|hate|enjoy|have|has|had|let|catch|caught|find|found|without|about|of|for|by)\s+)\b(I|you|we|they|he|she)\s+(?!(?:bring|sing|ring|swing|sting|cling|fling|spring|string|wring|thing|nothing|something|anything|everything)\b)([a-z]+ing)\b/gi,
       msg: "Перед -ing нужен be: I am going, we are studying, he was working.", fix: (m) => m[1] + " " + beFor(m[1]) + " " + m[2] },
-    { topic: "e_art", re: /\b(is|was|it's|that's)\s+((?:very|really|quite|such)\s+)?(famous|big|good|large|small|popular|great|interesting|hard|difficult|new|old|nice|cool|huge|strong|important|useful|typical|common|simple|easy|real|successful|bad|young|serious|well-known)\s+(company|university|place|city|app|project|task|subject|job|gym|team|book|idea|language|bank|student|analyst|engineer|developer|programmer|course|problem|question|skill|decision|tool|metric|feature|product|opportunity|dorm|room|friend|person|man|woman|teacher|professor|exam|test|day|week|year)\b/gi,
+    { topic: "b1_art", re: /\b(is|was|it's|that's)\s+((?:very|really|quite|such)\s+)?(famous|big|good|large|small|popular|great|interesting|hard|difficult|new|old|nice|cool|huge|strong|important|useful|typical|common|simple|easy|real|successful|bad|young|serious|well-known)\s+(company|university|place|city|app|project|task|subject|job|gym|team|book|idea|language|bank|student|analyst|engineer|developer|programmer|course|problem|question|skill|decision|tool|metric|feature|product|opportunity|dorm|room|friend|person|man|woman|teacher|professor|exam|test|day|week|year)\b/gi,
       msg: "Перед прилагательным + существительным в ед. ч. нужен артикль: a famous company.", fix: (m) => m[1] + " " + (/^[aeiou]/i.test(m[2] || m[3]) ? "an " : "a ") + (m[2] || "") + m[3] + " " + m[4] },
-    { topic: "e_art", re: /\b(as|am|is|was|be|become|became|becoming|i'm|he's|she's)\s+((?:second-year|first-year|third-year|junior|senior|good|great|young|talented|data|product|backend|frontend|full-stack|software)\s+)?(analyst|scientist|developer|programmer|engineer|student|intern|courier|manager|trader|designer|tester|teacher|team lead)\b/gi,
+    { topic: "b1_art", re: /\b(as|am|is|was|be|become|became|becoming|i'm|he's|she's)\s+((?:second-year|first-year|third-year|junior|senior|good|great|young|talented|data|product|backend|frontend|full-stack|software)\s+)?(analyst|scientist|developer|programmer|engineer|student|intern|courier|manager|trader|designer|tester|teacher|team lead)\b/gi,
       msg: "Профессия и роль с артиклем: as a data analyst, I'm a student.", fix: (m) => m[1] + " " + (/^[aeiou]/i.test(m[2] || m[3]) ? "an " : "a ") + (m[2] || "") + m[3] },
-    { topic: "e_art", re: /\bthan\s+(last|previous)\s+one\b/gi, msg: "the last one: than the last one.", fix: (m) => "than the " + m[1] + " one" },
-    { topic: "e_art", re: /\b(is|was|are|were|be)\s+(hardest|biggest|best|worst|easiest|largest|smallest|strongest|fastest|highest|lowest|most\s+(?!likely\b|of\b|probably\b|often\b|people\b)[a-z]+)\b/gi,
+    { topic: "b1_art", re: /\bthan\s+(last|previous)\s+one\b/gi, msg: "the last one: than the last one.", fix: (m) => "than the " + m[1] + " one" },
+    { topic: "b1_art", re: /\b(is|was|are|were|be)\s+(hardest|biggest|best|worst|easiest|largest|smallest|strongest|fastest|highest|lowest|most\s+(?!likely\b|of\b|probably\b|often\b|people\b)[a-z]+)\b/gi,
       msg: "Превосходная степень с the: the hardest, the most interesting.", fix: (m) => m[1] + " the " + m[2] },
-    { topic: "e_art", re: /\ban\s+([bcdfgjklmnpqrstvwxz][a-z]*)\b/g, msg: "Перед согласным звуком пишется a, не an.", fix: (m) => "a " + m[1], test: (m) => m[1] !== m[1].toUpperCase() },
-    { topic: "e_art", re: /\ba\s+([aeio][a-z]*)\b/gi, msg: "Перед гласным звуком пишется an: an engineer, an interview.", fix: (m) => "an " + m[1], test: (m) => !/^(one|once|eu|uni|use|usu)/i.test(m[1]) },
-    { topic: "e_prep", re: /\b(study|studies|studied|studying|work|works|worked|working|intern|interned|interning)\s+in\s+(the\s+)?([A-Za-z-]+)\b/g,
+    { topic: "b1_art", re: /\ban\s+([bcdfgjklmnpqrstvwxz][a-z]*)\b/g, msg: "Перед согласным звуком пишется a, не an.", fix: (m) => "a " + m[1], test: (m) => m[1] !== m[1].toUpperCase() },
+    { topic: "b1_art", re: /\ba\s+([aeio][a-z]*)\b/gi, msg: "Перед гласным звуком пишется an: an engineer, an interview.", fix: (m) => "an " + m[1], test: (m) => !/^(one|once|eu|uni|use|usu)/i.test(m[1]) },
+    { topic: "b1_prep", re: /\b(study|studies|studied|studying|work|works|worked|working|intern|interned|interning)\s+in\s+(the\s+)?([A-Za-z-]+)\b/g,
       msg: "Учиться и работать в организации: at (at BMSTU, at Yandex).", fix: (m) => m[1] + " at " + (m[2] || "") + m[3],
       test: (m) => !NOT_ORG.has(m[3]) && (ORGS.has(m[3].toLowerCase()) || /^[A-Z]{2,}$/.test(m[3])) },
-    { topic: "e_prep", re: /\bin\s+(next|last|this)\s+(year|week|month|semester|summer|winter|spring|autumn|fall|weekend)\b/gi, msg: "next / last / this year без предлога.", fix: (m) => m[1] + " " + m[2] },
-    { topic: "e_prep", re: /\bon\s+(the\s+)?(breakfast|lunch|dinner)\b/gi, msg: "На завтрак = for breakfast.", fix: (m) => "for " + m[2] },
-    { topic: "e_prep", re: /\b(exercises?|workouts?|training)\s+on\s+(my\s+|the\s+)?(biceps|triceps|legs|chest|back|abs|shoulders|press|glutes)\b/gi, msg: "Упражнение на мышцу = exercise for my biceps.", fix: (m) => m[1] + " for my " + (m[3] === "press" ? "abs" : m[3]) },
-    { topic: "e_ff", re: /\b(on|in)\s+(the\s+|my\s+)?(first|second|third|fourth|fifth|1st|2nd|3rd|4th)\s+course\b/gi, msg: "Курс вуза = year: in my second year.", fix: (m) => "in my " + m[3] + " year" },
-    { topic: "e_3s", re: new RegExp("\\b(" + SUBJ3 + "|it)\\s+((?:usually|often|always|also|never|sometimes)\\s+)?([a-z]+s)\\s+(?:[a-z'/-]+\\s+){0,5}?and\\s+(" + BASEV + ")\\b", "gi"),
-      msg: "Третье лицо: -s и у второго глагола (studies and works).", fix: (m) => "and " + s3(m[4]), test: (m) => m[4] !== "Go" && !/^was$/i.test(m[3]) && !/\b(do|does|did|can|will|would|to)\s+[a-z]+\s*$/i.test(m[0].slice(0, m[0].lastIndexOf(" and "))) },
-    { topic: "e_3s", re: new RegExp("(?<!\\b(?:did|does|didn't|doesn't|do|don't|will|won't|would|wouldn't|can|can't|cannot|could|couldn't|should|shouldn't|must|mustn't|might|may|let|make|makes|made|help|helps|helped|to|why|not|see|saw|watch|watched|hear|heard|and|or)\\s+)\\b(" + SUBJ3 + ")\\s+((?:usually|often|always|also|never|sometimes|really)\\s+)?(work|study|go|play|like|want|live|write|watch|make|do|have|cook|train|code|run|help|use|need|know|think|try|spend|build|take|get|teach|love|hate|enjoy|earn|trade|drink|eat|sleep|speak|say|tell)\\b", "gi"),
+    { topic: "b1_prep", re: /\bin\s+(next|last|this)\s+(year|week|month|semester|summer|winter|spring|autumn|fall|weekend)\b/gi, msg: "next / last / this year без предлога.", fix: (m) => m[1] + " " + m[2] },
+    { topic: "b1_prep", re: /\bon\s+(the\s+)?(breakfast|lunch|dinner)\b/gi, msg: "На завтрак = for breakfast.", fix: (m) => "for " + m[2] },
+    { topic: "b1_prep", re: /\b(exercises?|workouts?|training)\s+on\s+(my\s+|the\s+)?(biceps|triceps|legs|chest|back|abs|shoulders|press|glutes)\b/gi, msg: "Упражнение на мышцу = exercise for my biceps.", fix: (m) => m[1] + " for my " + (m[3] === "press" ? "abs" : m[3]) },
+    { topic: "b1_words", re: /\b(on|in)\s+(the\s+|my\s+)?(first|second|third|fourth|fifth|1st|2nd|3rd|4th)\s+course\b/gi, msg: "Курс вуза = year: in my second year.", fix: (m) => "in my " + m[3] + " year" },
+    { topic: "b1_be", re: new RegExp("\\b(" + SUBJ3 + "|it)\\s+((?:usually|often|always|also|never|sometimes)\\s+)?([a-z]+s)\\s+(?:[a-z'/-]+\\s+){0,5}?and\\s+(" + BASEV + ")\\b", "gi"),
+      and3: true, msg: "Третье лицо: -s и у второго глагола (studies and works).", fix: (m) => "and " + s3(m[4]), test: (m) => m[4] !== "Go" && !/^was$/i.test(m[3]) && !/\b(do|does|did|can|will|would|to)\s+[a-z]+\s*$/i.test(m[0].slice(0, m[0].lastIndexOf(" and "))) },
+    { topic: "b1_be", re: new RegExp("(?<!\\b(?:did|does|didn't|doesn't|do|don't|will|won't|would|wouldn't|can|can't|cannot|could|couldn't|should|shouldn't|must|mustn't|might|may|let|make|makes|made|help|helps|helped|to|why|not|see|saw|watch|watched|hear|heard|and|or)\\s+)\\b(" + SUBJ3 + ")\\s+((?:usually|often|always|also|never|sometimes|really)\\s+)?(work|study|go|play|like|want|live|write|watch|make|do|have|cook|train|code|run|help|use|need|know|think|try|spend|build|take|get|teach|love|hate|enjoy|earn|trade|drink|eat|sleep|speak|say|tell)\\b", "gi"),
       msg: "he / she / my friend + глагол-s: he works, she studies.", fix: (m) => m[1] + " " + (m[2] || "") + s3(m[3]), test: (m) => !(/^like$/i.test(m[3]) && /^(some|every|no)/i.test(m[1])) },
-    { topic: "e_modal", re: /\b(would|will|can|could|should|must|mustn't|might|did|didn't|does|doesn't|won't|can't|cannot|shouldn't|wouldn't|couldn't)\s+(not\s+)?([a-z]+)\b/gi,
+    { topic: "b1_form", re: /\b(would|will|can|could|should|must|mustn't|might|did|didn't|does|doesn't|won't|can't|cannot|shouldn't|wouldn't|couldn't)\s+(not\s+)?([a-z]+)\b/gi,
       msg: "После would / will / must / did / can — базовая форма: would choose, didn't go.", fix: () => null,
-      test: (m) => { const w = m[3].toLowerCase(); return IRREG.has(w) || (w.endsWith("ed") && w.length > 3 && !ED_BASE.has(w)) || (w.endsWith("ing") && w.length > 4 && !ING_OK.has(w)); } },
-    { topic: "e_modal", re: /\b(would like|'d like|want|wants|wanted|plan|plans|planned|decide|decided|try|tries|tried|hope|hopes|hoped)\s+(learn|study|find|get|work|go|become|apply|start|improve|move|buy|make|build|do|be|have|see|visit|write|read|take)\b/gi,
+      test: (m) => { const w = m[3].toLowerCase(); if (/^(did|does)$/i.test(m[1]) && (w === "was" || w === "is")) return false; return IRREG.has(w) || (w.endsWith("ed") && w.length > 3 && !ED_BASE.has(w)) || (w.endsWith("ing") && w.length > 4 && !ING_OK.has(w)); } },
+    { topic: "b1_form", re: /\b(would like|'d like|want|wants|wanted|plan|plans|planned|decide|decided|try|tries|tried|hope|hopes|hoped)\s+(learn|study|find|get|work|go|become|apply|start|improve|move|buy|make|build|do|be|have|see|visit|write|read|take)\b/gi,
       msg: "После want / would like / plan / decide нужен to: I want to find.", fix: (m) => m[1] + " to " + m[2] },
-    { topic: "e_tense", re: /\b(after|when|before|as soon as|until|till|once|unless)\s+(I|you|we|they|he|she|it|the\s+[a-z]+|my\s+[a-z]+)(\s+will|\s+won't|'ll)\b/gi,
+    { topic: "b1_time", re: /\b(after|when|before|as soon as|until|till|once|unless)\s+(I|you|we|they|he|she|it|the\s+[a-z]+|my\s+[a-z]+)(\s+will|\s+won't|'ll)\b/gi,
       msg: "После after / when / until будущее выражается Present: after I finish (без will). Исключение — косвенный вопрос «не знаю, когда он придёт».", fix: () => null },
-    { topic: "e_tense", re: /\bif\s+(I|you|we|they|he|she|it|the\s+[a-z]+)(\s+will|'ll|\s+would|'d)\b/gi, msg: "В части с if не бывает will / would: If I finish… / If I knew…", fix: () => null },
-    { topic: "e_calque", re: /\b[Ww]e\s+with\s+((?:my\s+|our\s+)?[A-Za-z]+)/g, msg: "«Мы с Сашей» = Sasha and I, «мы с другом» = my friend and I.", fix: (m) => m[1] + " and I", test: (m) => !/^(the|a|an|them|him|her|you|it|us|me|this|that)$/i.test(m[1]) },
-    { topic: "e_calque", re: /\b(my|our)\s+(friend|roommate|brother|sister|mom|mother|dad|father|teacher|boss|university|dorm|gym|team|group)\s+(he|she|it|they)\s+/gi, msg: "Лишнее местоимение: My friend works…, без he.", fix: (m) => m[1] + " " + m[2] + " " },
-    { topic: "e_calque", re: /\b(the|my|our)\s+(hardest|biggest|best|worst|easiest|most\s+[a-z]+|main|favourite|favorite|first|last)\s+([a-z]+)\s+it\s+(is|was)\b/gi, msg: "Лишнее it: The hardest subject is…", fix: (m) => m[1] + " " + m[2] + " " + m[3] + " " + m[4] },
-    { topic: "e_calque", re: /\bfor\s+(get|improve|learn|become|make|be|understand|find|pass|prepare|save|earn|train|build|buy|see|keep|stay)\b/gi, msg: "Цель «чтобы» = to + глагол: to get better.", fix: (m) => "to " + m[1] },
-    { topic: "e_calque", re: /\b(a|an|the|start|started|starting|have|has|had|with|create|created|build|built|launch|launched|open|opened)\s+own\b/gi, msg: "own только с притяжательным: my own, his own, our own.", fix: (m) => (/^(a|an|the)$/i.test(m[1]) ? "" : m[1] + " ") + "my own" },
-    { topic: "e_calque", re: /\bexplain(s|ed|ing)?\s+(me|him|her|us|them)\b/gi, msg: "explain something to me (не explain me).", fix: (m) => "explain" + (m[1] || "") + " it to " + m[2] },
-    { topic: "e_calque", re: /\bvisit(s|ed|ing)?\s+((?:the|my|all|all\s+the|all\s+my)\s+)?(lectures?|classes|seminars?|labs?|lessons?|pairs)\b/gi, msg: "Посещать пары = attend classes.", fix: (m) => "attend" + (m[1] || "") + " " + (m[2] || "") + m[3] },
-    { topic: "e_can", re: /\b(we|I|they)\s+((?:usually|often|sometimes|always)\s+)?can\s+(go|hang|play|watch|sit|drink|eat|cook|meet|walk|spend|have|chill|talk|study|train)\b/gi,
+    { topic: "b1_time", re: /\bif\s+(I|you|we|they|he|she|it|the\s+[a-z]+)(\s+will|'ll|\s+would|'d)\b/gi, msg: "В части с if не бывает will / would: If I finish… / If I knew…", fix: () => null },
+    { topic: "b1_words", re: /\b[Ww]e\s+with\s+((?:my\s+|our\s+)?[A-Za-z]+)/g, msg: "«Мы с Сашей» = Sasha and I, «мы с другом» = my friend and I.", fix: (m) => m[1] + " and I", test: (m) => !/^(the|a|an|them|him|her|you|it|us|me|this|that)$/i.test(m[1]) },
+    { topic: "b1_words", re: /\b(my|our)\s+(friend|roommate|brother|sister|mom|mother|dad|father|teacher|boss|university|dorm|gym|team|group)\s+(he|she|it|they)\s+/gi, msg: "Лишнее местоимение: My friend works…, без he.", fix: (m) => m[1] + " " + m[2] + " " },
+    { topic: "b1_words", re: /\b(the|my|our)\s+(hardest|biggest|best|worst|easiest|most\s+[a-z]+|main|favourite|favorite|first|last)\s+([a-z]+)\s+it\s+(is|was)\b/gi, msg: "Лишнее it: The hardest subject is…", fix: (m) => m[1] + " " + m[2] + " " + m[3] + " " + m[4] },
+    { topic: "b1_words", re: /\bfor\s+(get|improve|learn|become|make|be|understand|find|pass|prepare|save|earn|train|build|buy|see|keep|stay)\b/gi, msg: "Цель «чтобы» = to + глагол: to get better.", fix: (m) => "to " + m[1] },
+    { topic: "b1_words", re: /\b(a|an|the|start|started|starting|have|has|had|with|create|created|build|built|launch|launched|open|opened)\s+own\b/gi, msg: "own только с притяжательным: my own, his own, our own.", fix: (m) => (/^(a|an|the)$/i.test(m[1]) ? "" : m[1] + " ") + "my own" },
+    { topic: "b1_words", re: /\bexplain(s|ed|ing)?\s+(me|him|her|us|them)\b/gi, msg: "explain something to me (не explain me).", fix: (m) => "explain" + (m[1] || "") + " it to " + m[2] },
+    { topic: "b1_words", re: /\bvisit(s|ed|ing)?\s+((?:the|my|all|all\s+the|all\s+my)\s+)?(lectures?|classes|seminars?|labs?|lessons?|pairs)\b/gi, msg: "Посещать пары = attend classes.", fix: (m) => "attend" + (m[1] || "") + " " + (m[2] || "") + m[3] },
+    { topic: "b1_modal", re: /\b(we|I|they)\s+((?:usually|often|sometimes|always)\s+)?can\s+(go|hang|play|watch|sit|drink|eat|cook|meet|walk|spend|have|chill|talk|study|train)\b/gi,
       msg: "Если это привычка, can не нужен: On Fridays we go to parties.", fix: (m) => m[1] + " " + (m[2] || "") + m[3], sentence: /\b(every|usually|often|always|sometimes|on\s+(?:mondays|tuesdays|wednesdays|thursdays|fridays|saturdays|sundays|weekends)|at\s+weekends|in\s+the\s+evenings?|after\s+(?:classes|training|work|lectures))\b/i },
-    { topic: "e_ff", re: /\bphysical\s+culture\b/gi, msg: "Физкультура = PE.", fix: () => "PE" },
-    { topic: "e_ff", re: /\bstrings?\s+of\s+code\b/gi, msg: "Строки кода = lines of code.", fix: () => "lines of code" },
-    { topic: "e_ff", re: /\b(train|trains|trained|training|pump|pumped|pumping|swing|swung)\s+(my\s+|the\s+)?press\b/gi, msg: "Пресс (мышцы) = abs; press = жим.", fix: (m) => m[1] + " " + (m[2] || "my ") + "abs" },
-    { topic: "e_ff", re: /\bcontrol\s+works?\b/gi, msg: "Контрольная = test.", fix: () => "test" },
-    { topic: "e_ff", re: /\bdiploma\s+(work|project|paper)\b/gi, msg: "Дипломная работа = thesis.", fix: () => "thesis" },
-    { topic: "e_ff", re: /\bactual\s+(information|data|topic|problem|question|news|issue|version)\b/gi, msg: "Актуальный = relevant / up-to-date (actual = фактический).", fix: (m) => "up-to-date " + m[1] },
-    { topic: "e_ff", re: /\b(don't|do not|doesn't|didn't)\s+deny\b/gi, msg: "Если имелось в виду «не исключаю» → I don't rule out (+ -ing).", fix: (m) => m[1] + " rule out" },
-    { topic: "e_ff", re: /\b(I|we|he|she|they)\s+choose\b/gi, msg: "Прошедшее время от choose — chose.", fix: (m) => m[1] + " chose", sentence: /\b(ago|last|yesterday|in\s+20\d\d|in\s+(?:my\s+)?(?:first|school))\b/i },
-    { topic: "e_num", re: /\b(\d+|two|three|four|five|six|seven|eight|nine|ten|several|few)\s+(thousands|millions|hundreds|billions)\b/gi, msg: "После числа hundred / thousand / million без -s.", fix: (m) => m[1] + " " + m[2].replace(/s$/, "") },
-    { topic: "e_num", re: /\bmore\s+(\d[\d,.]*|a\s+hundred|a\s+thousand|a\s+million)\b(?!\s*(?:than|times))/gi, msg: "Больше 800 = more than 800 / over 800.", fix: (m) => "more than " + m[1] },
-    { topic: "e_num", re: /\b(\d+|two|three|four|five|six|seven|eight|nine|ten|many|several)\s+time\b(?!\s*(?:zones?|series|frames?|slots?|limits?))/gi, msg: "Раз — times: three times a week.", fix: (m) => m[1] + " times" },
-    { topic: "e_num", re: /\bpercents\b/gi, msg: "percent без -s.", fix: () => "percent" },
-    { topic: "e_num", re: /\b(?:one|1)\s+time\s+(a|per)\s+(day|week|month|year)\b/gi, msg: "Один раз = once: once a week.", fix: (m) => "once " + m[1] + " " + m[2] },
-    { topic: "e_num", re: /\b(?:two|2)\s+times\s+(a|per)\s+(day|week|month|year)\b/gi, msg: "Два раза = twice: twice a week.", fix: (m) => "twice " + m[1] + " " + m[2] },
-    { topic: "n_comp", re: /\b(more|less|better|worse|bigger|smaller|harder|easier|faster|slower|higher|lower|stronger|cheaper|longer|shorter|simpler|newer|older|richer|safer|riskier)\s+then\b/gi, msg: "После сравнения — than, не then.", fix: (m) => m[1] + " than" },
-    { topic: "n_comp", re: /\b((?:more|less)\s+[a-z]+|[a-z]{3,}er)\s+then\b/gi, msg: "После сравнения — than, не then.", fix: (m) => m[1] + " than",
+    { topic: "b1_words", re: /\bphysical\s+culture\b/gi, msg: "Физкультура = PE.", fix: () => "PE" },
+    { topic: "b1_words", re: /\bstrings?\s+of\s+code\b/gi, msg: "Строки кода = lines of code.", fix: () => "lines of code" },
+    { topic: "b1_words", re: /\b(train|trains|trained|training|pump|pumped|pumping|swing|swung)\s+(my\s+|the\s+)?press\b/gi, msg: "Пресс (мышцы) = abs; press = жим.", fix: (m) => m[1] + " " + (m[2] || "my ") + "abs" },
+    { topic: "b1_words", re: /\bcontrol\s+works?\b/gi, msg: "Контрольная = test.", fix: () => "test" },
+    { topic: "b1_words", re: /\bdiploma\s+(work|project|paper)\b/gi, msg: "Дипломная работа = thesis.", fix: () => "thesis" },
+    { topic: "b1_words", re: /\bactual\s+(information|data|topic|problem|question|news|issue|version)\b/gi, msg: "Актуальный = relevant / up-to-date (actual = фактический).", fix: (m) => "up-to-date " + m[1] },
+    { topic: "b1_words", re: /\b(don't|do not|doesn't|didn't)\s+deny\b/gi, msg: "Если имелось в виду «не исключаю» → I don't rule out (+ -ing).", fix: (m) => m[1] + " rule out" },
+    { topic: "b1_words", re: /\b(I|we|he|she|they)\s+choose\b/gi, msg: "Прошедшее время от choose — chose.", fix: (m) => m[1] + " chose", sentence: /\b(ago|last|yesterday|in\s+20\d\d|in\s+(?:my\s+)?(?:first|school))\b/i },
+    { topic: "b1_num", re: /\b(\d+|two|three|four|five|six|seven|eight|nine|ten|several|few)\s+(thousands|millions|hundreds|billions)\b/gi, msg: "После числа hundred / thousand / million без -s.", fix: (m) => m[1] + " " + m[2].replace(/s$/, "") },
+    { topic: "b1_num", re: /\bmore\s+(\d[\d,.]*|a\s+hundred|a\s+thousand|a\s+million)\b(?!\s*(?:than|times))/gi, msg: "Больше 800 = more than 800 / over 800.", fix: (m) => "more than " + m[1] },
+    { topic: "b1_num", re: /\b(\d+|two|three|four|five|six|seven|eight|nine|ten|many|several)\s+time\b(?!\s*(?:zones?|series|frames?|slots?|limits?))/gi, msg: "Раз — times: three times a week.", fix: (m) => m[1] + " times" },
+    { topic: "b1_num", re: /\bpercents\b/gi, msg: "percent без -s.", fix: () => "percent" },
+    { topic: "b1_num", re: /\b(?:one|1)\s+time\s+(a|per)\s+(day|week|month|year)\b/gi, msg: "Один раз = once: once a week.", fix: (m) => "once " + m[1] + " " + m[2] },
+    { topic: "b1_num", re: /\b(?:two|2)\s+times\s+(a|per)\s+(day|week|month|year)\b/gi, msg: "Два раза = twice: twice a week.", fix: (m) => "twice " + m[1] + " " + m[2] },
+    { topic: "b1_comp", re: /\b(more|less|better|worse|bigger|smaller|harder|easier|faster|slower|higher|lower|stronger|cheaper|longer|shorter|simpler|newer|older|richer|safer|riskier)\s+then\b/gi, msg: "После сравнения — than, не then.", fix: (m) => m[1] + " than" },
+    { topic: "b1_comp", re: /\b((?:more|less)\s+[a-z]+|[a-z]{3,}er)\s+then\b/gi, msg: "После сравнения — than, не then.", fix: (m) => m[1] + " than",
       test: (m) => !/^(after|never|ever|other|either|neither|together|later|over|under|whether|rather|order|number|answer|remember|november|december|september|october|summer|winter|water|paper|computer|power|user|server|cluster|player|teacher|brother|sister|mother|father|manager|developer|engineer|trader|offer|enter|register|filter|consider|discover|cover|deliver)$/i.test(m[1]) },
-    { topic: "n_comp", re: /\b(more|most)\s+(harder|easier|bigger|faster|better|worse|stronger|smaller|higher|lower|cheaper|longer|shorter|simpler|newer|older|hardest|easiest|biggest|fastest|best|worst|strongest|cheapest|longest|simplest)\b/gi, msg: "Двойное сравнение: harder (без more), the best (без most).", fix: (m) => m[2] },
-    { topic: "n_link", re: /\bdespite\s+(I|we|they|he|she|the\s+fact\s+I)\s+/gi, msg: "Despite + существительное / -ing; с целым предложением — although.", fix: (m) => "although " + m[1].replace(/the\s+fact\s+/i, "") + " " },
-    { topic: "n_link", re: /\bon\s+the\s+other\s+side\b/gi, msg: "С другой стороны = on the other hand.", fix: () => "on the other hand" },
-    { topic: "n_interview", re: /\bresponsible\s+(about|of)\b/gi, msg: "responsible for.", fix: () => "responsible for" },
-    { topic: "e_spell", re: SPELL_RE, msg: "Орфография.", fix: (m) => matchCase(m[1], SPELL[m[1].toLowerCase()]) }
+    { topic: "b1_comp", re: /\b(more|most)\s+(harder|easier|bigger|faster|better|worse|stronger|smaller|higher|lower|cheaper|longer|shorter|simpler|newer|older|hardest|easiest|biggest|fastest|best|worst|strongest|cheapest|longest|simplest)\b/gi, msg: "Двойное сравнение: harder (без more), the best (без most).", fix: (m) => m[2] },
+    { topic: "b1_link", re: /\bdespite\s+(I|we|they|he|she|the\s+fact\s+I)\s+/gi, msg: "Despite + существительное / -ing; с целым предложением — although.", fix: (m) => "although " + m[1].replace(/the\s+fact\s+/i, "") + " " },
+    { topic: "b1_link", re: /\bon\s+the\s+other\s+side\b/gi, msg: "С другой стороны = on the other hand.", fix: () => "on the other hand" },
+    { topic: "b1_job", re: /\bresponsible\s+(about|of)\b/gi, msg: "responsible for.", fix: () => "responsible for" },
+    { topic: "b1_listen", re: SPELL_RE, msg: "Орфография.", fix: (m) => matchCase(m[1], SPELL[m[1].toLowerCase()]) }
   ];
 
   function beFor(p) { p = p.toLowerCase(); return p === "i" ? "am" : (p === "he" || p === "she" || p === "it") ? "is" : "are"; }
@@ -245,7 +245,7 @@ window.EG = window.EG || {};
         if (r.test && !r.test(m)) continue;
         if (r.sentence && !r.sentence.test(sentenceAt(text, m.index))) continue;
         let start = m.index, end = m.index + m[0].length;
-        if (r.topic === "e_3s" && r.re.source.includes("and\\s+(")) { start = m.index + m[0].lastIndexOf("and "); }
+        if (r.and3 === true) { start = m.index + m[0].lastIndexOf("and "); }
         if (issues.some((x) => x.start < end && start < x.end)) continue;
         issues.push({ topic: r.topic, msg: r.msg, start, end, text: text.slice(start, end), fix: r.fix ? r.fix(m) : null });
       }
@@ -256,15 +256,41 @@ window.EG = window.EG || {};
 
   // Использование целевых конструкций в письме
   const DETECT = {
-    n_pp: /\b(have|has|haven't|hasn't|I've|we've|you've|they've)\s+(never\s+|already\s+|just\s+|ever\s+|not\s+|also\s+|recently\s+)?(been|done|gone|seen|written|taken|made|got|gotten|built|learnt|learned|bought|lost|won|had|known|met|found|become|grown|spent|chosen|begun|eaten|run|tried|worked|studied|lived|started|finished|completed|solved|improved|increased|gained|passed|used|created|developed|analysed|analyzed|wanted|decided|read|taught|given|understood|[a-z]+ed)\b/gi,
-    n_pc: /\b(was|were|wasn't|weren't)\s+(?!going\s+to)([a-z]+ing)\b/gi,
-    n_modal: /\b(should|shouldn't|must|mustn't|have\s+to|has\s+to|had\s+to|don't\s+have\s+to|doesn't\s+have\s+to|can|can't|could|couldn't|might|may|(?:are|is|am|aren't|isn't)\s+(?:not\s+)?allowed\s+to)\b/gi,
-    n_cond: /\b(if|unless)\b[^.!?]*?\b(will|won't|'ll|would|wouldn't|'d)\b/gi,
-    n_comp: /\b([a-z]+er\s+than|more\s+[a-z]+\s+than|less\s+[a-z]+\s+than|better\s+than|worse\s+than|not\s+as\s+[a-z]+\s+as|as\s+[a-z]+\s+as|the\s+more\b)/gi,
-    n_phr: /\b(go|goes|went|gone|going)\s+through|\b(look|looks|looked|looking)\s+(through|into)|\b(work|works|worked|working)\s+(through|out)|\b(get|gets|got|getting)\s+through|\b(hang|hangs|hung|hanging)\s+out|\b(figure|figures|figured|figuring)\s+out|\b(find|finds|found|finding)\s+out|\b(come|comes|came|coming)\s+up\s+with|\b(set|sets|setting)\s+up|\b(give|gives|gave|given|giving)\s+up|\b(keep|keeps|kept|keeping)\s+up\s+with|\b(catch|catches|caught|catching)\s+up|\b(run|runs|ran|running)\s+out\s+of|\b(put|puts|putting)\s+off|\b(turn|turns|turned|turning)\s+out|\b(break|breaks|broke|broken|breaking)\s+down|\b(sign|signs|signed|signing)\s+up|\b(pick|picks|picked|picking)\s+up|\b(drop|drops|dropped|dropping)\s+out/gi,
-    n_link: /\b(however|on\s+the\s+one\s+hand|on\s+the\s+other\s+hand|as\s+a\s+result|therefore|moreover|in\s+addition|furthermore|although|even\s+though|despite|in\s+spite\s+of|for\s+example|for\s+instance|such\s+as|in\s+conclusion|overall|firstly|secondly|finally|in\s+my\s+opinion|whereas|nevertheless)\b/gi,
-    n_interview: /\b(internship|responsible\s+for|requirements|responsibilities|metrics?|retention|churn|conversion|insights?|findings|stakeholders?|deadline|dashboard|hypothes[ie]s|a\/b\s+test|pet\s+project|eager|strengths?|weakness(?:es)?|attention\s+to\s+detail|team\s?work|feedback)\b/gi
+    b1_pp: /\b(have|has|haven't|hasn't|I've|we've|you've|they've)\s+(never\s+|already\s+|just\s+|ever\s+|not\s+|also\s+|recently\s+)?(been|done|gone|seen|written|taken|made|got|gotten|built|learnt|learned|bought|lost|won|had|known|met|found|become|grown|spent|chosen|begun|eaten|run|tried|worked|studied|lived|started|finished|completed|solved|improved|increased|gained|passed|used|created|developed|analysed|analyzed|wanted|decided|read|taught|given|understood|[a-z]+ed)\b/gi,
+    b1_pc: /\b(was|were|wasn't|weren't)\s+(?!going\s+to)([a-z]+ing)\b/gi,
+    b1_modal: /\b(should|shouldn't|must|mustn't|have\s+to|has\s+to|had\s+to|don't\s+have\s+to|doesn't\s+have\s+to|can|can't|could|couldn't|might|may|(?:are|is|am|aren't|isn't)\s+(?:not\s+)?allowed\s+to)\b/gi,
+    b1_cond: /\b(if|unless)\b[^.!?]*?\b(will|won't|'ll|would|wouldn't|'d)\b/gi,
+    b1_comp: /\b([a-z]+er\s+than|more\s+[a-z]+\s+than|less\s+[a-z]+\s+than|better\s+than|worse\s+than|not\s+as\s+[a-z]+\s+as|as\s+[a-z]+\s+as|the\s+more\b)/gi,
+    b1_phr: /\b(go|goes|went|gone|going)\s+through|\b(look|looks|looked|looking)\s+(through|into)|\b(work|works|worked|working)\s+(through|out)|\b(get|gets|got|getting)\s+through|\b(hang|hangs|hung|hanging)\s+out|\b(figure|figures|figured|figuring)\s+out|\b(find|finds|found|finding)\s+out|\b(come|comes|came|coming)\s+up\s+with|\b(set|sets|setting)\s+up|\b(give|gives|gave|given|giving)\s+up|\b(keep|keeps|kept|keeping)\s+up\s+with|\b(catch|catches|caught|catching)\s+up|\b(run|runs|ran|running)\s+out\s+of|\b(put|puts|putting)\s+off|\b(turn|turns|turned|turning)\s+out|\b(break|breaks|broke|broken|breaking)\s+down|\b(sign|signs|signed|signing)\s+up|\b(pick|picks|picked|picking)\s+up|\b(drop|drops|dropped|dropping)\s+out/gi,
+    b1_link: /\b(however|on\s+the\s+one\s+hand|on\s+the\s+other\s+hand|as\s+a\s+result|therefore|moreover|in\s+addition|furthermore|although|even\s+though|despite|in\s+spite\s+of|for\s+example|for\s+instance|such\s+as|in\s+conclusion|overall|firstly|secondly|finally|in\s+my\s+opinion|whereas|nevertheless)\b/gi,
+    b1_job: /\b(internship|responsible\s+for|requirements|responsibilities|metrics?|retention|churn|conversion|insights?|findings|stakeholders?|deadline|dashboard|hypothes[ie]s|a\/b\s+test|pet\s+project|eager|strengths?|weakness(?:es)?|attention\s+to\s+detail|team\s?work|feedback)\b/gi
   };
+  Object.assign(DETECT, {
+    b2_ppc: /\b(have|has|haven't|hasn't|I've|we've|you've|they've|he's|she's)\s+(?:not\s+|just\s+|also\s+)?been\s+[a-z]+ing\b/gi,
+    b2_narr: /\bhad\s+(?:already\s+|just\s+|never\s+|not\s+|been\s+)?[a-z]+(?:ed|en|wn|ne|ft|ght|lt|nt|ost|old|ound|ung|un|t)\b|\b(was|were)\s+[a-z]+ing\b/gi,
+    b2_passive: /\b(is|are|was|were|be|been|being|am)\s+(?:not\s+|also\s+|then\s+|usually\s+)?([a-z]+ed|built|made|done|seen|taken|given|known|found|sold|written|chosen|shown|told|paid|sent|kept|held|left|run|set|put|cut|read|spent|brought|taught|thought|bought|won|lost|drawn|grown|driven)\b/gi,
+    b2_rel: /\b(who|which|whose|where|when|that)\s+(?!is\s+why)[a-z]+/gi,
+    b2_ger: /\b(enjoy|enjoyed|avoid|finish|mind|consider|suggest|keep|kept|give\s+up|gave\s+up|stop|stopped|like|love|hate|in|at|of|for|about|before|after|without|by)\s+[a-z]+ing\b|\b(want|wanted|decide|decided|plan|planning|hope|manage|managed|refuse|afford|agree|promise|learn|would\s+like|'d\s+like|try|trying)\s+to\s+[a-z]+/gi,
+    b2_cond3: /\b(would|could|might)\s+(?:not\s+)?have\s+[a-z]+|\bhad\s+[a-z]+(?:ed|en|wn|ne|t)\b[^.]*\bwould\b|\bwish(?:es|ed)?\b|\bif\s+only\b/gi,
+    b2_used: /\bused\s+to\b|\buse\s+to\b|\bget(?:ting)?\s+used\s+to\b|\bgot\s+used\s+to\b|\bwould\s+(?:always\s+)?[a-z]+\s+(?:me|us|every)/gi,
+    b2_deduct: /\b(must|might|may|could|can't|couldn't|should|shouldn't)\s+(?:not\s+)?have\s+[a-z]+|\b(must|can't|might|could)\s+be\b/gi,
+    b2_reported: /\b(said|told|asked|explained|suggested|admitted|claimed|mentioned|promised|refused|advised|denied)\b/gi,
+    b2_future: /\bwill\s+be\s+[a-z]+ing\b|\bwill\s+have\s+[a-z]+|\b'll\s+(be\s+[a-z]+ing|have\s+[a-z]+)|\b(?:am|is|are|'m|'re)\s+(?:going\s+to|about\s+to)\b/gi,
+    b2_coll: /\b(made|make|making|makes)\s+(?:a\s+|an\s+|real\s+|big\s+|quick\s+)?(decision|progress|mistake|effort|difference|money)s?|\b(do|did|doing|done)\s+(?:some\s+)?research|\b(take|took|taken|taking)\s+(?:a\s+)?(risk|part|notes|responsibility|break)|\b(draw|drew|drawn)\s+[a-z]*\s*conclusions|\b(gain|gained)\s+[a-z]*\s*experience|\b(meet|met)\s+[a-z]*\s*(requirements|deadline)|\bpaid\s+attention|\bpay\s+attention|\b(conduct|conducted)\s+a\s+survey/gi,
+    b2_task1: /\b(rose|rise|risen|increased|grew|fell|fallen|decreased|declined|dropped|peaked|fluctuated|levelled|leveled|remained|sharply|steadily|slightly|significantly|gradually|dramatically|overall)\b/gi,
+    b2_task2: /\b(it\s+is\s+often\s+argued|i\s+(?:firmly|strongly)\s+believe|one\s+major\s+reason|for\s+instance|for\s+example|opponents|however|in\s+conclusion|on\s+the\s+other\s+hand|as\s+a\s+result|therefore|moreover)\b/gi,
+    c1_inv: /\b(never\s+(?:before\s+)?(?:have|has|had|did|do|does)|rarely\s+(?:do|does|did|have|has)|seldom\s+(?:do|does|did|have|has)|not\s+only\s+(?:do|does|did|can|is|are|was|were|have|has)|hardly\s+had|no\s+sooner\s+had|only\s+(?:after|when|then|by)\b[^.,]*\b(?:do|does|did|can|could|will|would|is|are)|under\s+no\s+circumstances|little\s+did|had\s+I|were\s+I|should\s+you)\b/gi,
+    c1_cleft: /\bwhat\s+[a-z]+(?:\s+[a-z]+)?\s+(?:is|was)\b|\bit\s+(?:is|was)\s+[^.]{1,40}?\s+(?:that|who)\b|\bthe\s+reason\s+why\b|\ball\s+I\s+[a-z]+\s+is\b/gi,
+    c1_part: /(?:^|[.!?]\s+)(having\s+[a-z]+|[A-Z][a-z]+ing\b|based\s+on|compared\s+(?:to|with)|[A-Z][a-z]+ed\s+(?:in|by|on|from|at))/g,
+    c1_hedge: /\b(tends?\s+to|likely|unlikely|appears?\s+to|seems?\s+to|it\s+(?:seems|appears)|suggests?|may|might|could\s+be|possibly|arguably|to\s+some\s+extent|in\s+most\s+cases|generally|largely|there\s+is\s+evidence)\b/gi,
+    c1_nominal: /\b(increase|rise|decline|decrease|growth|introduction|analysis|development|improvement|reduction|absence|lack|implementation|simplification|redesign|decision|failure|impact)\s+(?:in|of|on)\b|\b(led|leads|lead)\s+to\b|\bresult(?:ed|s)?\s+in\b|\bcontribut(?:ed|es|e)\s+to\b/gi,
+    c1_awl: /\b(significant(?:ly)?|assess|sufficient|adopt(?:ed)?|comprises?|indicates?|estimated?|evidence|fluctuate[ds]?|vary|varies|allocate[ds]?|derived?|consistent|substantial|subsequent|crucial|enhance[ds]?|constraints?|interpret|inherent)\b/gi,
+    c1_para: /./g,
+    c1_sp3: /\b(I\s+suspect|it's\s+hard\s+to\s+say|compared\s+to|on\s+the\s+whole|by\s+and\s+large|in\s+the\s+long\s+run|it\s+depends|on\s+the\s+other\s+hand|for\s+example|I'd\s+imagine|I\s+wouldn't\s+be\s+surprised)\b/gi
+  });
+  delete DETECT.c1_para;
+  const RULE_TOPICS = [...new Set(RULES.map((r) => r.topic))];
+
   function usage(topicId, text) {
     const re = DETECT[topicId];
     if (!re) return null;
@@ -280,7 +306,7 @@ window.EG = window.EG || {};
     const sentences = text.split(/[.!?]+/).map((s) => s.trim()).filter((s) => s.split(/\s+/).length >= 2);
     const lower = words.map((w) => w.toLowerCase());
     const uniq = new Set(lower);
-    const linkers = usage("n_link", text) || [];
+    const linkers = usage("b1_link", text) || [];
     const long = lower.filter((w) => w.length >= 8).length;
     return {
       words: words.length,
@@ -292,5 +318,5 @@ window.EG = window.EG || {};
     };
   }
 
-  EG.check = { expand, answersOf, norm, check, diff, checkWriting, usage, lev };
+  EG.check = { expand, answersOf, norm, check, diff, checkWriting, usage, lev, RULE_TOPICS };
 })();

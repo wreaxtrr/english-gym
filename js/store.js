@@ -47,7 +47,7 @@ EG.store = (function () {
   }
   function saveNow() { clearTimeout(timer); try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
-  function initialMastery(topicId) { return topicId.startsWith("e_") ? 0.35 : 0; }
+  function initialMastery() { return 0; }
   function topic(id) {
     if (!state.topics[id]) state.topics[id] = { m: initialMastery(id), n: 0, ok: 0, l: 0, h: [] };
     return state.topics[id];

@@ -8,14 +8,15 @@
   const idFromHash = (h) => h.replace("-", "_");
 
   const SEC = {
-    warm: { t: "Разминка", d: "повторяем твои ошибки" },
+    warm: { t: "Разминка", d: "повторение пройденного" },
+    test: { t: "Тест", d: "проверка знания темы" },
     theory: { t: "Новая тема", d: "правило и примеры" },
     practice: { t: "Подходы", d: "практика" },
     write: { t: "Письмо", d: "ответ в 3–5 предложений" },
     summary: { t: "Итог", d: "" }
   };
-  const TYPE = { gap: "Вставь пропущенное", choice: "Выбери вариант", fix: "Найди и исправь ошибку", tr: "Переведи на английский", listen: "Послушай", write: "Напиши ответ" };
-  const STATUS = { current: "изучаем", passed: "пройдена", queued: "в очереди", planned: "в разработке", error: "личная ошибка" };
+  const TYPE = { gap: "Вставь пропущенное", choice: "Выбери вариант", fix: "Найди и исправь ошибку", tr: "Переведи на английский", rw: "Перепиши", listen: "Послушай", write: "Напиши ответ" };
+  const STATUS = { current: "изучаем", passed: "пройдена", queued: "в очереди", planned: "в разработке" };
 
   // ───────── Тема оформления ─────────
   function applyTheme() {
@@ -75,15 +76,15 @@
 
   // ───────── Сегодня ─────────
   function stageProgress(stage) {
-    const ts = E.curriculum.filter((t) => t.stage === stage);
+    const ts = E.units.filter((t) => t.stage === stage);
     const ready = ts.filter(E.ready);
     return { total: ts.length, ready: ready.length, passed: ready.filter((t) => E.isPassed(t.id)).length };
   }
   function renderToday() {
     const p = E.preview(), run = S.state.cur, L = p.L;
-    const b1 = stageProgress("B1");
-    const weak = E.errorTopics.concat(E.curriculum.filter((t) => E.ready(t) && (E.isPassed(t.id) || (S.state.topics[t.id] || {}).n)))
+    const weak = E.units.filter((t) => E.ready(t) && (E.isPassed(t.id) || (S.state.topics[t.id] || {}).n))
       .map((t) => ({ t, m: S.mastery(t.id), w: E.topicWeight(t.id) })).sort((a, b) => b.w - a.w).slice(0, 6);
+    const total = E.units.filter(E.ready).length, passedN = E.units.filter((t) => E.isPassed(t.id)).length;
     const days = new Set(S.state.days), today = S.today();
     let strip = "";
     for (let d = today - 27; d <= today; d++) strip += `<i class="${days.has(d) ? "on" : ""}${d === today ? " now" : ""}" title="${S.dayToDate(d).toLocaleDateString("ru-RU")}"></i>`;
@@ -92,13 +93,13 @@
     view.innerHTML = `
 <section class="hero">
   <div class="card hero-main">
-    <p class="eyebrow">Тренировка дня · ${L.minutes} мин</p>
+    <p class="eyebrow">Тренировка дня · ${L.minutes} мин${curT ? ` · урок ${curT.n} из ${E.units.length} · ${curT.stage}` : ""}</p>
     <h1>${run ? "Тренировка на паузе" : curT ? esc(curT.title) : "Повторение"}</h1>
     ${run ? `<p class="lead">Пройдено ${run.i} из ${run.plan.length - 1} шагов. Продолжим с того же места.</p>` : `<p class="lead">${curT ? esc(curT.short) : "Все готовые темы пройдены. Тренируем слабые места."}</p>`}
     <ol class="plan">
-      <li><b>Разминка</b><span>${L.warm} заданий на твои ошибки: ${p.warmTopics.map((t) => esc(t.title.toLowerCase())).join(", ")}</span></li>
+      ${p.warmTopics.length ? `<li><b>Разминка</b><span>${L.warm} заданий на повторение пройденного: ${p.warmTopics.map((t) => esc(t.title)).join(", ")}</span></li>` : ""}
       ${curT ? `<li><b>Новая тема</b><span>${esc(curT.title)}${ct && ct.n ? ` · освоено ${pct(S.mastery(curT.id))}%` : " · начинаем"}</span></li>
-      <li><b>Подходы</b><span>${L.practice} заданий по теме${L.review ? ` + ${L.review} на повторение пройденного` : ""}</span></li>
+      <li><b>Подходы</b><span>${L.practice} заданий по теме${L.review && p.warmTopics.length ? ` + ${L.review} на повторение пройденного` : ""}</span></li>
       ${L.write ? `<li><b>Письмо</b><span>ответ на вопрос, 3–5 предложений, с разбором</span></li>` : ""}` : ""}
       <li><b>Итог</b><span>что выросло, что упало, что ушло в копилку</span></li>
     </ol>
@@ -109,14 +110,15 @@
   </div>
   <aside class="tiles">
     <div class="tile"><span class="num">${S.streak()}</span><span class="lbl">дней подряд</span></div>
-    <div class="tile"><span class="num">${b1.passed}<small>/${b1.ready}</small></span><span class="lbl">тем B1 пройдено</span></div>
+    <div class="tile"><span class="num">${passedN}<small>/${total}</small></span><span class="lbl">уроков пройдено</span></div>
     <a class="tile link" href="#bank"><span class="num">${S.state.bank.length}</span><span class="lbl">в копилке</span></a>
-    <div class="tile"><span class="num">${E.errorTopics.concat(E.curriculum).reduce((a, t) => a + E.dueCount(t.id), 0)}</span><span class="lbl">заданий ждут повторения</span></div>
+    <div class="tile"><span class="num">${E.units.reduce((a, t) => a + E.dueCount(t.id), 0)}</span><span class="lbl">заданий ждут повторения</span></div>
     <div class="tile wide"><span class="lbl">Последние 4 недели</span><div class="strip">${strip}</div></div>
   </aside>
 </section>
 <section class="block">
-  <div class="block-head"><h2>Слабые места</h2><p class="muted">Чем ниже «вес», тем чаще тема попадает в разминку.</p></div>
+  <div class="block-head"><h2>Слабые места</h2><p class="muted">Чем ниже освоенность, тем чаще тема попадает в разминку.</p></div>
+  ${weak.length ? "" : `<p class="empty">Появятся после первых тренировок. Если какую-то тему ты уже знаешь, открой её на <a href="#map">карте</a> и сдай тест — сразу перейдёшь дальше.</p>`}
   <ul class="weak">${weak.map(({ t, m }) => `
     <li><a href="#topic-${hashId(t.id)}" class="weak-name">${esc(t.title)}<small>${esc(t.short)}</small></a>
       <span class="weak-m">${meter(m)}</span>
@@ -143,7 +145,7 @@
     run.plan.forEach((p, i) => { if (p.kind === "summary") return; const last = secs[secs.length - 1]; if (!last || last.sec !== p.sec) secs.push({ sec: p.sec, steps: [] }); secs[secs.length - 1].steps.push(i); });
     const resByIdx = {};
     run.res.forEach((r) => { resByIdx[r.idx] = r; });
-    const progress = secs.map((g) => `<div class="pg-sec${g.steps.includes(run.i) ? " on" : ""}"><span class="pg-lbl">${SEC[g.sec].t}</span><div class="pg-cells">${g.steps.map((i) => {
+    const progress = secs.map((g) => `<div class="pg-sec${g.steps.includes(run.i) ? " on" : ""}" style="flex:${Math.max(g.steps.length, 1.6)}"><span class="pg-lbl">${SEC[g.sec].t}</span><div class="pg-cells">${g.steps.map((i) => {
       const r = resByIdx[i]; return `<i class="${i === run.i ? "cur" : r ? (r.ok ? "ok" : "bad") : ""}${run.plan[i].retry ? " retry" : ""}"></i>`; }).join("")}</div></div>`).join("");
     view.innerHTML = `
 <div class="session-top">
@@ -180,6 +182,8 @@
       body = `${it.ctx ? `<p class="ctx">Вопрос: <i>${esc(it.ctx)}</i></p>` : ""}<p class="manuscript">${esc(it.q)}</p>
         <label class="lbl-sm" for="ans">Исправленное предложение</label>
         <textarea id="ans" rows="2" spellcheck="false" autocapitalize="sentences">${esc(it.q)}</textarea>`;
+    } else if (it.t === "rw") {
+      body = `<p class="need">${esc(it.h)}</p><p class="manuscript plain">${esc(it.q)}</p><label class="lbl-sm" for="ans">Новое предложение</label><textarea id="ans" rows="2" spellcheck="false"></textarea>`;
     } else if (it.t === "tr") {
       body = `<p class="ru">${esc(it.q)}</p><label class="lbl-sm" for="ans">Перевод</label><textarea id="ans" rows="2" spellcheck="false" placeholder="Напиши по-английски…"></textarea>`;
     } else if (it.t === "listen") {
@@ -227,7 +231,7 @@
   function doCheck(stage, step, run, it) {
     ui.checked = true;
     let ok, best, near = false, user = "";
-    const strict = it.t === "gap" || it.t === "listen" || it.topic === "e_spell";
+    const strict = it.t === "gap" || it.t === "listen";
     if (it.o) {
       ok = !ui.dunno && ui.chosen === it.a;
       best = it.o[it.a];
@@ -246,8 +250,8 @@
     const fb = stage.querySelector("#fb");
     const all = it.o ? [] : C.answersOf(it);
     const others = all.filter((a) => C.norm(a) !== C.norm(best)).filter((a, i, arr) => arr.findIndex((x) => C.norm(x) === C.norm(a)) === i).slice(0, 3);
-    const showDiff = !ok && user.trim() && (it.t === "fix" || it.t === "tr" || (it.t === "listen" && !it.o));
-    const canOverride = !ok && user.trim() && (it.t === "tr" || it.t === "fix" || (near && it.topic !== "e_spell"));
+    const showDiff = !ok && user.trim() && (it.t === "fix" || it.t === "tr" || it.t === "rw" || (it.t === "listen" && !it.o));
+    const canOverride = !ok && user.trim() && (it.t === "tr" || it.t === "fix" || it.t === "rw" || (near && it.t !== "listen"));
     fb.className = "fb " + (ok ? "ok" : "bad");
     fb.innerHTML = `
       <p class="verdict">${ok ? "Верно." : ui.dunno ? "Ничего страшного, разберём." : near ? "Почти: отличается одной буквой." : "Не совсем."}</p>
@@ -278,6 +282,7 @@
     const a = it.o ? it.o[it.a] : C.answersOf(it)[0];
     if (it.t === "tr") return [a, it.q];
     if (it.t === "fix") return [a, "ошибка: " + it.q];
+    if (it.t === "rw") return [a, it.h + ": " + it.q];
     if (it.t === "listen") return [it.say, it.ru || ""];
     if (it.q && it.q.includes("___")) return [it.q.replace("___", a), it.ex || ""];
     return [a, it.ex || ""];
@@ -290,7 +295,7 @@
     if (!ok) {
       const c = cardFor(it);
       if (c && S.addBank(c[0], c[1], it.topic)) run.bank++;
-      if (!step.retry) {
+      if (!step.retry && run.type !== "test") {
         // вернуть задание в конце текущего раздела (но не раньше чем через 2 шага)
         let end = run.i + 1;
         while (end < run.plan.length && run.plan[end].sec === step.sec) end++;
@@ -349,7 +354,7 @@ ${text}
 """
 
 Разбери на русском:
-1) Все ошибки списком: было → стало → короткое объяснение. Особенно проверь мои типичные ошибки: пропуск be, артикли, предлоги (at BMSTU, next year без in, for breakfast), -s в 3-м лице (особенно у второго глагола), форма глагола после would/must/did, время ответа и will после after/when/if, can вместо Present Simple для привычек, кальки с русского, ложные друзья, числа, орфография.
+1) Все ошибки списком: было → стало → короткое объяснение. Особенно проверь частые ошибки русскоязычных: пропуск be, артикли, предлоги (at BMSTU, next year без in, for breakfast), -s в 3-м лице (особенно у второго глагола), форма глагола после would/must/did, время ответа и will после after/when/if, can вместо Present Simple для привычек, кальки с русского, ложные друзья, числа, орфография.
 2) Исправленная версия моего текста, по возможности близко к оригиналу.
 3) 3–5 слов или конструкций уровня B2–C1, которые сделали бы ответ сильнее, с примером на моём тексте.${o.ielts ? "\n4) Примерная оценка по критериям IELTS (" + (o.part && o.part[0] === "W" ? "Task Achievement/Response, Coherence & Cohesion, Lexical Resource, Grammatical Range & Accuracy" : "Fluency & Coherence, Lexical Resource, Grammatical Range & Accuracy") + ") и по одному совету на каждый критерий." : ""}
 В конце дай строки для импорта в Quizlet: английская фраза<TAB>перевод — только для моих ошибок и новых фраз.`;
@@ -422,9 +427,9 @@ ${text}
       const res = C.checkWriting(text);
       lastRes = res;
       const st = res.stats;
-      const focusNew = (o.focus || []).filter((f) => !f.startsWith("e_"));
+      const focusNew = o.focus || [];
       const usage = focusNew.map((f) => { const u = C.usage(f, text); return u ? { f, u } : null; }).filter(Boolean);
-      const errTopics = E.errorTopics;
+      const errTopics = EG.check.RULE_TOPICS.map((id) => E.byId[id]).filter(Boolean);
       const wordsWarn = o.words && st.words < o.words[0] ? `<p class="warnline">Меньше ${o.words[0]} слов: на экзамене за это снижают оценку.</p>` : "";
       resBox.innerHTML = `
 <div class="wres">
@@ -441,7 +446,7 @@ ${text}
   ${usage.length ? `<ul class="usage">${usage.map(({ f, u }) => `<li>${u.length ? "✓" : "✗"} <b>${esc(topicTitle(f))}</b>: ${u.length ? `${u.length} × <i>${esc(u.slice(0, 4).join(", "))}</i>` : "не нашёл"}</li>`).join("")}</ul>` : ""}
   ${o.model ? `<details class="model"><summary>Образец ответа</summary><p>${esc(o.model)}</p></details>` : ""}
   <div class="self">
-    <p class="lbl-sm">Сверься с образцом: какие ещё свои ошибки нашёл? Эти темы станут появляться чаще.</p>
+    <p class="lbl-sm">Сверься с образцом: какие ещё ошибки нашёл? Эти темы станут чаще появляться в повторении.</p>
     <div class="chips">${errTopics.map((t) => `<label class="tog"><input type="checkbox" id="${idp}e_${t.id}" value="${t.id}" ${res.issues.some((i) => i.topic === t.id) ? "checked disabled" : ""}><span>${esc(t.title)}</span></label>`).join("")}</div>
     ${o.need && focusNew.length ? `<p class="lbl-sm">Условие задания выполнено?</p>
     <div class="chips" role="radiogroup">${[["yes", "да"], ["part", "частично"], ["no", "нет"]].map(([v, l]) => `<label class="tog"><input type="radio" name="${idp}need" id="${idp}need_${v}" value="${v}" ${(v === "yes" && usage.every((x) => x.u.length >= 2)) || (v === "no" && usage.some((x) => !x.u.length)) ? "checked" : ""}><span>${l}</span></label>`).join("")}</div>` : ""}
@@ -460,7 +465,7 @@ ${text}
       let added = 0;
       res.issues.forEach((is) => { if (is.fix && S.addBank(is.fix, "было: «" + is.text + "» — " + is.msg, is.topic)) added++; });
       const need = root.querySelector(`input[name="${idp}need"]:checked`);
-      const focusNew = (o.focus || []).filter((f) => !f.startsWith("e_"));
+      const focusNew = o.focus || [];
       if (need && focusNew[0]) {
         if (need.value === "yes") S.topicResult(focusNew[0], true, 2);
         else if (need.value === "no") S.topicResult(focusNew[0], false, 1);
@@ -512,7 +517,11 @@ ${text}
     const changes = Object.keys(run.before).filter((id) => E.byId[id]).map((id) => ({ id, a: run.before[id], b: S.mastery(id) }))
       .filter((c) => Math.abs(c.b - c.a) >= 0.005).sort((x, y) => (y.b - y.a) - (x.b - x.a));
     let passedMsg = "";
-    if (run.topic && E.checkPass(run.topic)) {
+    if (run.type === "test" && run.topic) {
+      const need = Math.min(E.TEST.need, Math.max(1, res.length - 1));
+      if (ok >= need) { if (!E.isPassed(run.topic)) E.markPassed(run.topic); const next = E.currentTopic(); passedMsg = `<div class="banner">Тест сдан: ${ok} из ${res.length}. Урок «${esc(topicTitle(run.topic))}» засчитан.${next ? ` Следующий — «${esc(next.title)}».` : ""}</div>`; }
+      else passedMsg = `<div class="banner warn">${ok} из ${res.length}: для зачёта нужно ${need}. Урок остаётся в обучении, его задания появятся в тренировках.</div>`;
+    } else if (run.topic && E.checkPass(run.topic)) {
       const next = E.currentTopic();
       passedMsg = `<div class="banner">Тема «${esc(topicTitle(run.topic))}» пройдена и переходит в повторение.${next ? ` Со следующей тренировки — «${esc(next.title)}».` : ""}</div>`;
     }
@@ -531,12 +540,13 @@ ${text}
   <h1><span class="big">${pct(acc)}%</span> верно с первой попытки</h1>
   ${passedMsg}
   <dl class="sum-secs">${["warm", "practice"].filter((s) => bySec[s]).map((s) => `<div><dt>${SEC[s].t}</dt><dd>${bySec[s].ok} из ${bySec[s].n}</dd></div>`).join("")}
+    ${bySec.test ? `<div><dt>Тест</dt><dd>${bySec.test.ok} из ${bySec.test.n}</dd></div>` : ""}
     <div><dt>В копилку</dt><dd>${run.bank}</dd></div></dl>
   ${changes.length ? `<h2>Как изменился «вес» тем</h2><ul class="changes">${changes.map((c) => `<li><span>${esc(topicTitle(c.id))}</span><span class="meter-wrap">${meter(c.b, false)}</span><span class="delta ${c.b >= c.a ? "up" : "down"}">${pct(c.a)} → ${pct(c.b)}%</span></li>`).join("")}</ul>` : ""}
-  ${t && tm && !E.isPassed(t.id) && t.kind === "new" ? `<p class="muted">До прохождения темы «${esc(t.title)}»: освоенность ${pct(tm.m)}% из ${pct(E.PASS.m)}% и ${Math.min(tm.n, E.PASS.n)} из ${E.PASS.n} ответов.</p>` : ""}
+  ${t && tm && !E.isPassed(t.id) && run.type !== "test" ? `<p class="muted">До прохождения темы «${esc(t.title)}»: освоенность ${pct(tm.m)}% из ${pct(E.PASS.m)}% и ${Math.min(tm.n, E.PASS.n)} из ${E.PASS.n} ответов.</p>` : ""}
   <div class="row">
     <button class="btn primary" data-act="home">На главную</button>
-    <button class="btn ghost" data-act="more">Ещё 8 заданий на слабое место</button>
+    <button class="btn ghost" data-act="more">Ещё 8 заданий на самую слабую тему</button>
     ${run.bank ? `<a class="btn ghost" href="#bank" data-act="tobank">Открыть копилку</a>` : ""}
   </div>
 </article>`;
@@ -545,7 +555,9 @@ ${text}
       if (b.dataset.act === "home") { S.state.cur = null; S.save(); location.hash = "#today"; }
       if (b.dataset.act === "tobank") { S.state.cur = null; S.save(); }
       if (b.dataset.act === "more") {
-        const w = E.errorTopics.concat(E.curriculum.filter((x) => E.ready(x) && S.state.topics[x.id])).sort((a, b2) => E.topicWeight(b2.id) - E.topicWeight(a.id))[0];
+        const cands = E.units.filter((x) => E.ready(x) && S.state.topics[x.id]).sort((a, b2) => E.topicWeight(b2.id) - E.topicWeight(a.id));
+        const w = cands[0] || E.currentTopic();
+        if (!w) { location.hash = "#today"; return; }
         E.buildDrill(w.id, 8); renderSession();
       }
     };
@@ -556,19 +568,18 @@ ${text}
     const st = E.status(t.id);
     const m = S.mastery(t.id);
     return `<li><a class="trow s-${st}" href="#topic-${hashId(t.id)}">
+      <span class="tnum">${t.n}</span>
       <span class="tname">${esc(t.title)}<small>${esc(t.short)}</small></span>
-      <span class="tstat">${st === "planned" ? chip(STATUS[st], "muted") : `${st === "error" ? "" : chip(STATUS[st], st)}<span class="tmeter">${meter(m)}</span>`}</span></a></li>`;
+      <span class="tstat">${chip(STATUS[st], st)}${st === "planned" ? "" : `<span class="tmeter">${meter(m)}</span>`}</span></a></li>`;
   }
   function renderMap() {
     view.innerHTML = `
-<header class="page-head"><p class="eyebrow">Дорожная карта</p><h1>От B1 до C1 / IELTS 8.0</h1>
-<p class="lead">Темы идут по порядку. Новая тема считается пройденной, когда освоенность ≥ ${pct(E.PASS.m)}% и набралось ${E.PASS.n}+ ответов. После этого она уходит в повторение и иногда попадает в разминку.</p></header>
-<section class="block"><div class="block-head"><h2>Личные ошибки</h2><p class="muted">Крутятся в разминке каждый день. Чем ниже освоенность, тем чаще.</p></div>
-<ul class="tlist">${E.errorTopics.map(topicRow).join("")}</ul></section>
+<header class="page-head"><p class="eyebrow">Дорожная карта · ${E.units.length} уроков</p><h1>B1 → B2 → C1</h1>
+<p class="lead">Уроки идут по порядку. Урок засчитан, когда освоенность ≥ ${pct(E.PASS.m)}% и набралось ${E.PASS.n} ответов, либо когда сдан тест (${E.TEST.need} из ${E.TEST.size}). Если тему уже знаешь, открой её и сдай тест.</p></header>
 ${EG.stages.map((sg) => { const p = stageProgress(sg.id); return `
 <section class="block stage"><div class="block-head"><h2>${esc(sg.title)} <span class="band">${esc(sg.ielts)}</span></h2>
-<p class="muted">${esc(sg.goal)} ${p.ready ? `Пройдено ${p.passed} из ${p.ready}.` : "Темы этой ступени пока в разработке."}</p></div>
-<ul class="tlist">${E.curriculum.filter((t) => t.stage === sg.id).map(topicRow).join("")}</ul></section>`; }).join("")}`;
+<p class="muted">${esc(sg.goal)} Пройдено ${p.passed} из ${p.ready}.</p></div>
+<ul class="tlist">${E.units.filter((t) => t.stage === sg.id).map(topicRow).join("")}</ul></section>`; }).join("")}`;
   }
 
   function renderTopic(arg) {
@@ -581,7 +592,7 @@ ${EG.stages.map((sg) => { const p = stageProgress(sg.id); return `
     view.innerHTML = `
 <p class="back"><a href="#map">← Карта</a></p>
 <article class="card theory">
-  <header class="task-head">${chip(t.kind === "error" ? "личная ошибка" : "ступень " + t.stage, "sec")}${st !== "error" ? chip(STATUS[st], st) : ""}</header>
+  <header class="task-head">${chip("урок " + t.n + " · " + t.stage, "sec")}${chip(STATUS[st], st)}</header>
   <h1>${esc(t.title)}</h1><p class="lead">${esc(t.short)}</p>
   ${st === "planned" ? `<p>${esc(t.plan)}</p><p class="muted">Заданий по этой теме пока нет. Тема откроется, когда добавим контент (см. README → «Как добавить тему»).</p>` : `
   <dl class="tstats">
@@ -593,8 +604,9 @@ ${EG.stages.map((sg) => { const p = stageProgress(sg.id); return `
   </dl>
   <div class="row">
     <button class="btn primary" data-act="drill">Потренировать 10 заданий</button>
-    ${t.kind === "new" && st !== "passed" && st !== "current" ? `<button class="btn ghost" data-act="current">Сделать текущей темой</button>` : ""}
-    ${t.kind === "new" && st !== "passed" ? `<button class="btn ghost" data-act="pass">Я это знаю: отметить пройденной</button>` : ""}
+    ${st !== "passed" ? `<button class="btn" data-act="test">Уже знаю: сдать тест (${E.TEST.need} из ${E.TEST.size})</button>` : ""}
+    ${st !== "passed" && st !== "current" ? `<button class="btn ghost" data-act="current">Сделать текущим уроком</button>` : ""}
+    ${st !== "passed" ? `<button class="btn ghost" data-act="pass">Засчитать без теста</button>` : ""}
     ${st === "passed" ? `<button class="btn ghost" data-act="unpass">Вернуть в изучение</button>` : ""}
   </div>
   <div class="rule-body">${t.theory}</div>
@@ -604,8 +616,9 @@ ${EG.stages.map((sg) => { const p = stageProgress(sg.id); return `
       const b = e.target.closest("[data-act]"); if (!b) return;
       const a = b.dataset.act;
       if (a === "drill") { E.buildDrill(t.id, 10); location.hash = "#session"; }
-      if (a === "current") { S.state.current = t.id; S.save(); toast("Теперь это текущая тема"); renderTopic(arg); }
-      if (a === "pass") { S.state.passed[t.id] = S.today(); if (S.state.current === t.id) S.state.current = null; S.save(); toast("Отмечено. Тема будет иногда появляться в разминке"); renderTopic(arg); }
+      if (a === "test") { E.buildTest(t.id); location.hash = "#session"; }
+      if (a === "current") { S.state.current = t.id; S.save(); toast("Теперь это текущий урок"); renderTopic(arg); }
+      if (a === "pass") { E.markPassed(t.id); toast("Засчитано. Урок будет иногда появляться в повторении"); renderTopic(arg); }
       if (a === "unpass") { delete S.state.passed[t.id]; S.state.current = t.id; S.save(); renderTopic(arg); }
       if (a === "words") { const n = collectWords(view, t); toast(n ? `В копилку: ${n}` : "Ничего нового не отмечено"); renderTopic(arg); }
     };
@@ -613,18 +626,18 @@ ${EG.stages.map((sg) => { const p = stageProgress(sg.id); return `
 
   // ───────── Свободное письмо ─────────
   const FREE = [
-    { q: "Describe your typical day in the dorm.", focus: ["e_be", "e_3s", "e_prep", "e_can"] },
-    { q: "Tell me about your gym routine. What do you do and why?", focus: ["e_ff", "e_prep", "e_num", "e_calque"] },
-    { q: "Why did you choose BMSTU and your programme?", focus: ["e_tense", "e_art", "e_prep"] },
-    { q: "What did you do last weekend?", focus: ["e_tense", "e_calque"] },
-    { q: "What are your plans for next summer?", focus: ["e_be", "e_tense", "e_modal"] },
-    { q: "Tell me about your experience with trading stocks and crypto. What did you learn?", focus: ["e_num", "e_tense", "e_modal"] },
-    { q: "Describe a friend of yours: what does he or she do, and what do you usually do together?", focus: ["e_3s", "e_calque", "e_can"] },
-    { q: "Which programming language do you like most and why?", focus: ["e_art", "n_comp", "e_ff"] }
+    { q: "Describe your typical day in the dorm.", focus: ["b1_be", "b1_prep", "b1_modal"] },
+    { q: "Tell me about your gym routine. What do you do and why?", focus: ["b1_words", "b1_prep", "b1_num"] },
+    { q: "Why did you choose BMSTU and your programme?", focus: ["b1_time", "b1_art", "b1_prep"] },
+    { q: "What did you do last weekend?", focus: ["b1_time", "b1_words"] },
+    { q: "What are your plans for next summer?", focus: ["b1_be", "b1_time", "b1_form"] },
+    { q: "Tell me about your experience with trading stocks and crypto. What did you learn?", focus: ["b1_num", "b1_time", "b1_form"] },
+    { q: "Describe a friend of yours: what does he or she do, and what do you usually do together?", focus: ["b1_be", "b1_words", "b1_modal"] },
+    { q: "Which programming language do you like most and why?", focus: ["b1_art", "b1_comp", "b1_words"] }
   ];
   let freeIdx = null, freeOwn = "";
   function renderFreeWrite() {
-    const fromTopics = E.topics.filter(E.ready).flatMap((t) => (t.items || []).filter((it) => it.t === "write" && (E.isPassed(t.id) || S.state.topics[t.id])).map((it) => ({ q: it.q, need: it.need, model: it.model, focus: it.focus })));
+    const fromTopics = E.units.filter(E.ready).flatMap((t) => (t.items || []).filter((it) => it.t === "write" && (E.isPassed(t.id) || S.state.topics[t.id])).map((it) => ({ q: it.q, need: it.need, model: it.model, focus: it.focus })));
     const list = FREE.concat(fromTopics);
     if (freeIdx == null || freeIdx >= list.length) freeIdx = Math.floor(Math.random() * FREE.length);
     view.innerHTML = `
@@ -675,7 +688,7 @@ ${ieltsPart[0] === "S" ? `<div><dt>Pronunciation</dt><dd>Понятность, �
     view.querySelector('[data-act="rnd"]').onclick = () => { ieltsIdx = Math.floor(Math.random() * list.length); renderIelts(); };
     writer(view.querySelector("#iw"), {
       q: cur.q, cue: cur.cue, model: cur.model, part: ieltsPart, ielts: true, minutes: P.minutes, prep: P.prep, words: P.words, idp: "i",
-      focus: ieltsPart[0] === "W" ? ["n_link", "n_comp"] : ["n_link"],
+      focus: ieltsPart === "W1" ? ["b2_task1"] : ieltsPart === "W2" ? ["b2_task2", "c1_hedge"] : ieltsPart === "S3" ? ["c1_sp3"] : ["b1_link"],
       onDone: () => { toast("Сохранено в историю"); ieltsIdx = (ieltsIdx + 1) % list.length; renderIelts(); }
     });
   }
@@ -736,7 +749,7 @@ ${ieltsPart[0] === "S" ? `<div><dt>Pronunciation</dt><dd>Понятность, �
   function renderStats() {
     const st = S.state;
     const tot = Object.values(st.topics).reduce((a, t) => ({ n: a.n + t.n, ok: a.ok + t.ok }), { n: 0, ok: 0 });
-    const rows = E.errorTopics.concat(E.curriculum.filter(E.ready));
+    const rows = E.units.filter(E.ready);
     const voices = EG.tts.voices;
     view.innerHTML = `
 <header class="page-head"><p class="eyebrow">Прогресс</p><h1>Статистика и настройки</h1></header>
@@ -749,11 +762,11 @@ ${ieltsPart[0] === "S" ? `<div><dt>Pronunciation</dt><dd>Понятность, �
 </div>
 <section class="block"><div class="block-head"><h2>Темы</h2></div>
 <div class="table-wrap"><table class="topics-t"><thead><tr><th>Тема</th><th>Освоенность</th><th class="num">Ответов</th><th class="num">Посл. 20</th><th class="num">К повтор.</th></tr></thead><tbody>
-${rows.map((t) => { const s = st.topics[t.id]; const h = s ? s.h.slice(-20) : []; return `<tr><td><a href="#topic-${hashId(t.id)}">${esc(t.title)}</a> <span class="muted small">${t.kind === "error" ? "ошибка" : t.stage}${E.isPassed(t.id) ? " · пройдена" : ""}</span></td><td class="mcell">${meter(S.mastery(t.id))}</td><td class="num">${s ? s.n : 0}</td><td class="num">${h.length ? pct(h.reduce((a, b) => a + b, 0) / h.length) + "%" : "—"}</td><td class="num">${E.dueCount(t.id)}</td></tr>`; }).join("")}
+${rows.map((t) => { const s = st.topics[t.id]; const h = s ? s.h.slice(-20) : []; return `<tr><td><a href="#topic-${hashId(t.id)}">${esc(t.title)}</a> <span class="muted small">${t.n} · ${t.stage}${E.isPassed(t.id) ? " · пройден" : ""}</span></td><td class="mcell">${meter(S.mastery(t.id))}</td><td class="num">${s ? s.n : 0}</td><td class="num">${h.length ? pct(h.reduce((a, b) => a + b, 0) / h.length) + "%" : "—"}</td><td class="num">${E.dueCount(t.id)}</td></tr>`; }).join("")}
 </tbody></table></div></section>
 <section class="block"><div class="block-head"><h2>История тренировок</h2></div>
 ${st.sessions.length ? `<div class="table-wrap"><table><thead><tr><th>Дата</th><th>Тип</th><th class="num">Заданий</th><th class="num">Верно</th><th class="num">Мин</th></tr></thead><tbody>
-${st.sessions.slice(0, 15).map((s) => `<tr><td>${new Date(s.at).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</td><td>${s.type === "daily" ? "дня" : "тема: " + esc(topicTitle(s.topic))}</td><td class="num">${s.n}</td><td class="num">${s.n ? pct(s.ok / s.n) : 0}%</td><td class="num">${s.min}</td></tr>`).join("")}
+${st.sessions.slice(0, 15).map((s) => `<tr><td>${new Date(s.at).toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</td><td>${s.type === "daily" ? "дня" : (s.type === "test" ? "тест: " : "урок: ") + esc(topicTitle(s.topic))}</td><td class="num">${s.n}</td><td class="num">${s.n ? pct(s.ok / s.n) : 0}%</td><td class="num">${s.min}</td></tr>`).join("")}
 </tbody></table></div>` : `<p class="empty">Тренировок пока не было.</p>`}</section>
 ${st.writes.length ? `<section class="block"><div class="block-head"><h2>Письменные ответы</h2></div><ul class="writes">${st.writes.slice(0, 10).map((w) => `<li><details><summary><span class="muted small">${fmtDate(w.at)}${w.part ? " · " + esc(w.part) : ""} · ${w.words} слов · подсказок автопроверки: ${w.issues}</span><br>${esc(w.q)}</summary><p class="wtext-saved">${esc(w.text)}</p></details></li>`).join("")}</ul></section>` : ""}
 <section class="block settings"><div class="block-head"><h2>Настройки</h2></div>
