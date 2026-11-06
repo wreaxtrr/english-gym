@@ -33,6 +33,23 @@ const KEY = 'english-gym-v1';
     for (const hash of ['#map', '#stats', '#write', '#ielts', '#bank', '#today']) await nav(hash);
     console.log('PASS: all six screens render');
 
+    await page.evaluate(() => {
+      const t = EG.engine.byId.b1_pp;
+      const it = t.items.find(i => i.q === 'Я уже побил свой рекорд в жиме в этом семестре.');
+      EG.engine.buildDrill(t.id, 1);
+      EG.store.state.cur.plan = [{ sec: 'practice', kind: 'item', id: it.id }, { sec: 'summary', kind: 'summary' }];
+      EG.store.saveNow();
+    });
+    await nav('#session');
+    assert.equal(await page.locator('.task-head').innerText().then(x => x.includes('Present Perfect')), true);
+    await page.locator('#ans').fill('I have already broken my bench press record this semester.');
+    await page.locator('[data-act=check]').click();
+    assert.match(await page.locator('#fb').innerText(), /Верно/);
+    assert.doesNotMatch(await page.locator('#fb').innerText(), /have been \+ -ing/);
+    await page.locator('[data-act=next]').click();
+    await page.locator('[data-act=home]').click();
+    console.log('PASS: B1 Present Perfect gym exercise accepts have + V3');
+
     // Put a real content item first so the test does not depend on random selection.
     await page.evaluate(() => {
       const E = EG.engine, S = EG.store, t = E.units[0];
