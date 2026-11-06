@@ -47,9 +47,29 @@
   function download(name, text) {
     try {
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+      const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+      a.href = url;
       a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (e) { toast("Скачивание недоступно, используй «Скопировать»"); }
+  }
+
+  function storageNotice() {
+    let el = document.getElementById("storage-notice");
+    if (!el) {
+      el = document.createElement("div"); el.id = "storage-notice";
+      el.className = "wrap"; el.setAttribute("role", "alert");
+      view.before(el);
+    }
+    el.hidden = !S.error;
+    el.innerHTML = S.error ? `<p class="banner warn">${esc(S.error)} <a href="#stats">Открыть данные</a></p>` : "";
+  }
+  window.addEventListener("eg-storage", storageNotice);
+
+  function startRun(build) {
+    const run = S.state.cur;
+    if (run && !run.saved && !window.confirm("Есть незаконченная тренировка. Заменить её новой? Уже засчитанные ответы останутся в прогрессе.")) return;
+    build(); location.hash = "#session";
   }
 
   // ───────── Навигация ─────────
@@ -127,8 +147,8 @@
     view.onclick = (e) => {
       const a = e.target.closest("[data-act],[data-drill]");
       if (!a) return;
-      if (a.dataset.drill) { E.buildDrill(a.dataset.drill, 8); location.hash = "#session"; return; }
-      if (a.dataset.act === "start" || a.dataset.act === "restart") { E.buildSession(); location.hash = "#session"; }
+      if (a.dataset.drill) { startRun(() => E.buildDrill(a.dataset.drill, 8)); return; }
+      if (a.dataset.act === "start" || a.dataset.act === "restart") startRun(() => E.buildSession());
       if (a.dataset.act === "resume") location.hash = "#session";
     };
   }
@@ -209,7 +229,15 @@
   <div id="fb" class="fb" hidden></div>
 </article>`;
     const inp = stage.querySelector("#ans");
-    if (inp) { setTimeout(() => { inp.focus(); if (inp.tagName === "TEXTAREA" && it.t === "fix") inp.setSelectionRange(inp.value.length, inp.value.length); }, 30); }
+    if (inp) {
+      if (typeof step.answer === "string") inp.value = step.answer;
+      inp.oninput = () => { step.answer = inp.value; S.save(); };
+      setTimeout(() => { inp.focus(); if (inp.tagName === "TEXTAREA" && it.t === "fix") inp.setSelectionRange(inp.value.length, inp.value.length); }, 30);
+    }
+    if (step.feedback) {
+      ui.chosen = step.feedback.chosen; ui.dunno = step.feedback.dunno;
+      doCheck(stage, step, run, it);
+    }
     if (it.t === "listen") setTimeout(() => EG.tts.speak(it.say), 250);
 
     stage.onclick = (e) => {
@@ -247,6 +275,9 @@
       inp.readOnly = true; inp.classList.add(ok ? "is-ok" : "is-bad");
     }
     ui.ok = ok;
+    if (!it.o) step.answer = stage.querySelector("#ans").value;
+    step.feedback = { chosen: ui.chosen, dunno: !!ui.dunno };
+    S.save();
     const fb = stage.querySelector("#fb");
     const all = it.o ? [] : C.answersOf(it);
     const others = all.filter((a) => C.norm(a) !== C.norm(best)).filter((a, i, arr) => arr.findIndex((x) => C.norm(x) === C.norm(a)) === i).slice(0, 3);
@@ -323,6 +354,7 @@
 
   function renderTheoryStep(stage, step, run) {
     const t = E.byId[step.id];
+    if (!t) { run.i++; S.save(); renderSession(); return; }
     const seen = !!S.state.seenTheory[t.id];
     stage.innerHTML = `
 <article class="card theory">
@@ -373,8 +405,8 @@ ${text}
   function writer(root, o) {
     const idp = o.idp || "w";
     const draftKey = "draft:" + o.q.slice(0, 80);
-    let draft = "";
-    try { draft = sessionStorage.getItem(draftKey) || ""; } catch (e) {}
+    let draft = S.state.drafts[o.q] || "";
+    if (!Object.prototype.hasOwnProperty.call(S.state.drafts, o.q)) { try { draft = sessionStorage.getItem(draftKey) || ""; } catch (e) {} }
     const target = o.words ? `${o.words[0]}–${o.words[1]} слов` : "3–5 предложений";
     root.innerHTML = `
 <article class="card writer">
@@ -392,10 +424,13 @@ ${text}
   <div id="${idp}res"></div>
 </article>`;
     const ta = root.querySelector(".wtext"), cnt = root.querySelector(`#${idp}cnt`), resBox = root.querySelector(`#${idp}res`);
+    let lastRes = null, checkedText = null;
     const upd = () => {
       const st = C.checkWriting(ta.value).stats;
       cnt.textContent = `${st.words} слов · ${st.sentences} предл.`;
-      try { sessionStorage.setItem(draftKey, ta.value); } catch (e) {}
+      S.state.drafts[o.q] = ta.value;
+      S.save();
+      if (lastRes && checkedText !== ta.value.trim()) { lastRes = null; resBox.innerHTML = ""; }
     };
     ta.addEventListener("input", upd); upd();
     setTimeout(() => ta.focus({ preventScroll: true }), 30);
@@ -420,12 +455,12 @@ ${text}
       }, 1000);
     }
 
-    let lastRes = null;
     function check() {
       const text = ta.value.trim();
       if (text.split(/\s+/).length < 5) { toast("Напиши хотя бы пару предложений"); return; }
       const res = C.checkWriting(text);
       lastRes = res;
+      checkedText = text;
       const st = res.stats;
       const focusNew = o.focus || [];
       const usage = focusNew.map((f) => { const u = C.usage(f, text); return u ? { f, u } : null; }).filter(Boolean);
@@ -458,7 +493,8 @@ ${text}
 
     function done() {
       const text = ta.value.trim();
-      const res = lastRes || C.checkWriting(text);
+      if (!lastRes || checkedText !== text) { check(); return; }
+      const res = lastRes;
       const flagged = new Set(res.issues.map((i) => i.topic));
       root.querySelectorAll(".self input[type=checkbox]:checked:not(:disabled)").forEach((el) => flagged.add(el.value));
       flagged.forEach((tid) => { if (E.byId[tid]) S.topicResult(tid, false, 1); });
@@ -472,6 +508,7 @@ ${text}
       }
       S.state.writes.unshift({ at: Date.now(), q: o.q, part: o.part || "", text, issues: res.issues.length, words: res.stats.words });
       S.state.writes = S.state.writes.slice(0, 40);
+      delete S.state.drafts[o.q];
       S.markDay(); S.save();
       try { sessionStorage.removeItem(draftKey); } catch (e) {}
       if (added) toast(`В копилку: ${added}`);
@@ -494,6 +531,7 @@ ${text}
 
   function renderWriteStep(stage, step, run) {
     const it = E.items[step.id];
+    if (!it) { run.i++; S.save(); renderSession(); return; }
     writer(stage, {
       q: it.q, need: it.need, model: it.model, focus: it.focus, idp: "s",
       head: `<header class="task-head">${chip("Письмо", "sec")}${chip(topicTitle(it.topic))}<span class="qtype">3–5 предложений</span></header>`,
@@ -615,8 +653,8 @@ ${EG.stages.map((sg) => { const p = stageProgress(sg.id); return `
     view.onclick = (e) => {
       const b = e.target.closest("[data-act]"); if (!b) return;
       const a = b.dataset.act;
-      if (a === "drill") { E.buildDrill(t.id, 10); location.hash = "#session"; }
-      if (a === "test") { E.buildTest(t.id); location.hash = "#session"; }
+      if (a === "drill") startRun(() => E.buildDrill(t.id, 10));
+      if (a === "test") startRun(() => E.buildTest(t.id));
       if (a === "current") { S.state.current = t.id; S.save(); toast("Теперь это текущий урок"); renderTopic(arg); }
       if (a === "pass") { E.markPassed(t.id); toast("Засчитано. Урок будет иногда появляться в повторении"); renderTopic(arg); }
       if (a === "unpass") { delete S.state.passed[t.id]; S.state.current = t.id; S.save(); renderTopic(arg); }
@@ -787,10 +825,12 @@ ${EG.tts.ok ? "" : `<p class="muted small">Браузер не поддержи�
 <div class="row">
   <button class="btn" data-act="export">Скачать резервную копию</button>
   <button class="btn ghost" data-act="exportcopy">Скопировать JSON</button>
+  <button class="btn ghost" data-act="previous">Копия до последней замены</button>
+  ${S.error ? `<button class="btn ghost" data-act="original">Скачать исходные данные браузера</button>` : ""}
   <label class="btn ghost" for="imp">Загрузить из файла</label><input id="imp" type="file" accept=".json,application/json" hidden>
 </div>
 <details class="paste"><summary>Вставить JSON вручную</summary><textarea id="impt" class="mono" rows="4" placeholder="Вставь сюда резервную копию"></textarea><button class="btn small" data-act="importtext">Загрузить</button></details>
-<div class="row danger">${confirmReset ? `<span>Удалить весь прогресс и копилку? Это необратимо.</span><button class="btn bad" data-act="reset2">Да, удалить</button><button class="btn ghost" data-act="reset0">Отмена</button>` : `<button class="btn ghost" data-act="reset1">Сбросить прогресс</button>`}</div>
+<div class="row danger">${confirmReset ? `<span>Сбросить прогресс и копилку? Копия до сброса сохранится в этом браузере.</span><button class="btn bad" data-act="reset2">Да, сбросить</button><button class="btn ghost" data-act="reset0">Отмена</button>` : `<button class="btn ghost" data-act="reset1">Сбросить прогресс</button>`}</div>
 </section>`;
     const q = (s) => view.querySelector(s);
     q("#set_len").onchange = (e) => { st.settings.length = e.target.value; S.save(); toast("Сохранено"); };
@@ -807,15 +847,25 @@ ${EG.tts.ok ? "" : `<p class="muted small">Браузер не поддержи�
       if (a === "importtext") importJSON(q("#impt").value);
       if (a === "reset1") { confirmReset = true; renderStats(); }
       if (a === "reset0") { confirmReset = false; renderStats(); }
-      if (a === "reset2") { confirmReset = false; S.reset(); toast("Прогресс сброшен"); renderStats(); renderNav("stats"); }
+      if (a === "previous" || a === "original") {
+        try {
+          const raw = a === "previous" ? S.backup() : S.original();
+          if (raw) download(`english-gym-${a}.json`, raw); else toast("Сохранённой копии пока нет");
+        } catch (e) { toast("Браузер не разрешает прочитать хранилище"); }
+      }
+      if (a === "reset2") {
+        try { S.reset(); confirmReset = false; toast("Прогресс сброшен. Предыдущая копия сохранена."); renderStats(); renderNav("stats"); }
+        catch (e) { toast(e.message); }
+      }
     };
   }
   function importJSON(text) {
     try {
       const s = JSON.parse(text);
-      if (!s || s.v !== 1 || !s.topics) throw new Error("bad");
+      S.validate(s);
+      if (!window.confirm("Заменить текущий прогресс данными из файла? Копия до замены сохранится в этом браузере.")) return;
       S.replace(s); applyTheme(); toast("Прогресс загружен"); route();
-    } catch (e) { toast("Это не похоже на резервную копию English Gym"); }
+    } catch (e) { toast(e instanceof SyntaxError ? "Это не похоже на резервную копию English Gym" : e.message); }
   }
 
   // ───────── Глобальные клавиши ─────────
@@ -830,6 +880,7 @@ ${EG.tts.ok ? "" : `<p class="muted small">Браузер не поддержи�
     }
   });
 
+  storageNotice();
   applyTheme();
   route();
 })();

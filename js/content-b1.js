@@ -154,13 +154,13 @@ EG.topics.push(
 <tr><td>for / since</td><td>I<b>'ve lived</b> in the dorm <b>for</b> two years / <b>since</b> 2024.</td></tr>
 <tr><td>already / yet / just</td><td>I've <b>already</b> sent it. I haven't started <b>yet</b>.</td></tr>
 </table>
-<div class="trap">Есть точное время в прошлом (yesterday, last year, in 2023, ago)? Тогда Past Simple: ✗ I have passed the exam yesterday → ✓ I passed.<br>«Я учусь тут с 2024» — не Present Simple, а <b>I've studied / I've been studying</b> here since 2024.</div>
+<div class="trap">Есть точное время в прошлом (yesterday, last year, in 2023, ago)? Тогда Past Simple: ✗ I have passed the exam yesterday → ✓ I passed.<br>«У меня этот ноутбук с 2024 года» — не Present Simple, а <b>I've had</b> this laptop since 2024.</div>
 <p>Частые V3: been, done, gone, seen, written, taken, eaten, made, built, bought, lost, chosen, known, met, found.</p>
 <p><b>been vs gone:</b> He's <b>been</b> to the gym (сходил и вернулся). He's <b>gone</b> to the gym (ушёл, сейчас там).</p>`,
   items: [
     {"t":"gap","q":"I ___ the SQL assignment: you can check it now.","h":"finish","a":"have finished","ex":"Результат важен сейчас → Present Perfect."},
     {"t":"gap","q":"Have you ever ___ crypto?","h":"trade","a":"traded","ex":"Опыт: Have you ever + V3."},
-    {"t":"gap","q":"I ___ in this dorm since September 2024.","h":"live","a":["have lived","have been living"],"ex":"since + Present Perfect.","c":["I've lived here since 2024","живу здесь с 2024 (Present Perfect)"]},
+    {"t":"gap","q":"I ___ this laptop since September 2024.","h":"have","a":"have had","ex":"Состояние длится до сих пор: have had + since.","c":["I've had this laptop since 2024","у меня этот ноутбук с 2024 года"]},
     {"t":"gap","q":"She ___ her internship yet.","h":"not start","a":["has not started","hasn't started"],"ex":"yet в отрицании → Present Perfect."},
     {"t":"gap","q":"We ___ to the gym four times this week.","h":"be","a":"have been","ex":"this week — период не закончился."},
     {"t":"choice","q":"I ___ to Saint Petersburg three times.","o":["went","have been","was going"],"a":1,"ex":"Опыт без времени."},
@@ -169,16 +169,16 @@ EG.topics.push(
     {"t":"choice","q":"I've been interested in data ___ 2024.","o":["for","since","from"],"a":1,"ex":"since + точка отсчёта."},
     {"t":"choice","q":"Where's Max? — He ___ to the gym. He'll be back at 8.","o":["has been","has gone","went"],"a":1,"ex":"Ушёл и ещё там → has gone."},
     {"t":"fix","q":"I have passed the exam yesterday.","a":"I passed the exam yesterday.","ex":"yesterday → Past Simple."},
-    {"t":"fix","q":"I study at BMSTU since 2024.","a":["I have studied at BMSTU since 2024.","I have been studying at BMSTU since 2024."],"ex":"since → Present Perfect."},
+    {"t":"fix","q":"My friend knows his coach since 2024.","a":"My friend has known his coach since 2024.","ex":"know — глагол состояния: has known + since."},
     {"t":"fix","q":"Have you ever be to a hackathon?","a":"Have you ever been to a hackathon?","ex":"V3 от be = been.","c":["Have you ever been to…?","Ты когда-нибудь был на…?"]},
     {"t":"fix","q":"My friend has wrote a Telegram bot in Go.","a":"My friend has written a Telegram bot in Go.","ex":"write — wrote — written."},
     {"t":"tr","q":"Я уже сделал дашборд для этого проекта.","a":"I have already {made|built|created} {a|the} dashboard for this project.","ex":"already + Present Perfect."},
     {"t":"tr","q":"Ты когда-нибудь проходил собеседование на английском?","a":"Have you ever {had|done|gone through|been to} {an|a job} interview in English?","ex":"Опыт: Have you ever…?"},
     {"t":"tr","q":"Я ещё не выбрал тему курсовой.","a":["I have not chosen {a|the|my} topic for my {coursework|term paper|course project} yet.","I have not chosen {a|the|my} {coursework|term paper|course project} topic yet."],"ex":"yet в конце; choose — chose — chosen."},
-    {"t":"tr","q":"Я хожу в зал уже два года.","a":"I have been {going to the gym|working out|training} for {two|2} years [now].","ex":"Длится до сих пор: have been + -ing + for."},
+    {"t":"tr","q":"Я уже побил свой рекорд в жиме в этом семестре.","a":"I have already {broken|beaten} my bench press record this semester.","ex":"Семестр ещё идёт, результат уже есть: have + V3 (broken / beaten)."},
     {"t":"choice","q":"What ___ this semester? — I've learned pandas and basic statistics.","o":["did you learn","have you learned","do you learn"],"a":1,"ex":"Семестр ещё идёт, ответ тоже в Present Perfect."},
-    {"t":"choice","q":"How long ___ Python?","o":["do you learn","have you been learning","are you learning"],"a":1,"ex":"How long + Present Perfect (Continuous)."},
-    {"t":"write","q":"What have you achieved in the gym over the last two years?","need":"Present Perfect минимум 2 раза (I've gained, I've learned…) и одно предложение в Past Simple с точным временем.","focus":["b1_pp"],"model":"I have been going to the gym for two years. During this time I have gained about eight kilos of muscle, and my bench press has increased from 50 to 85 kg. I have also learned how to plan my training and my diet. Last month I took part in a small powerlifting competition in our dorm and came third."},
+    {"t":"choice","q":"How many Python projects ___ so far?","o":["did you finish","have you finished","are you finishing"],"a":1,"ex":"so far — результат к настоящему моменту: have finished."},
+    {"t":"write","q":"What have you achieved in the gym over the last two years?","need":"Present Perfect минимум 2 раза (I've gained, I've learned…) и одно предложение в Past Simple с точным временем.","focus":["b1_pp"],"model":"Over the last two years I have gained about eight kilos of muscle, and my bench press has increased from 50 to 85 kg. I have also learned how to plan my training and my diet. Last month I took part in a small powerlifting competition in our dorm and came third."},
     {"t":"write","q":"IELTS Speaking Part 1 style: Tell me about your experience with data. What have you done so far?","need":"Present Perfect для опыта (I've studied, I've built, I haven't … yet), Past Simple для конкретного прошлого.","focus":["b1_pp","b1_job"],"model":"I have studied Python and SQL for about a year. I have completed several online courses on data analysis, and I have built a small project: a dashboard that tracks my crypto portfolio. I haven't worked as an analyst yet, but I have solved more than a hundred SQL problems. Last semester I also wrote a term paper on time series forecasting."}
   ]
 },

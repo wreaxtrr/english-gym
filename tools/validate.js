@@ -26,5 +26,23 @@ for (const t of EG.topics) {
   });
 }
 for (const p of EG.ielts) if (p.model) C.checkWriting(p.model).issues.forEach(x => { console.log('IELTS FP', p.q.slice(0,30), x.text, x.msg); problems++; });
+// B1 Present Perfect учит have/has + V3; длительный процесс разбирается в B2.
+const b1pp = EG.topics.find(t => t.id === 'b1_pp');
+const b2ppc = EG.topics.find(t => t.id === 'b2_ppc');
+const continuous = /\b(?:have|has|'ve|'s)\s+been\s+\w+ing\b/i;
+if (!b1pp || !b2ppc) { console.log('MISSING Present Perfect unit'); problems++; }
+else {
+  if (continuous.test(b1pp.theory) || b1pp.items.some(it => continuous.test(JSON.stringify(it)))) {
+    console.log('B1 Present Perfect contains a Continuous example'); problems++;
+  }
+  if (!b2ppc.items.some(it => continuous.test(JSON.stringify(it)))) {
+    console.log('B2 Present Perfect Continuous has no process examples'); problems++;
+  }
+  const gym = b1pp.items.find(it => it.q === 'Я уже побил свой рекорд в жиме в этом семестре.');
+  if (!gym || !C.check(gym, 'I have already broken my bench press record this semester.').ok) {
+    console.log('BAD Present Perfect gym translation'); problems++;
+  }
+}
 const n = EG.topics.reduce((a,t)=>a+(t.items||[]).length,0);
 console.log('topics', EG.topics.length, 'items', n, 'problems', problems);
+process.exitCode = problems ? 1 : 0;
