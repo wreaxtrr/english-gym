@@ -1,0 +1,9 @@
+{
+  "name": "english-gym",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/store.test.js && node tools/validate.js",
+    "test:browser": "node tests/browser.js"
+  },
+  "devDependencies": { "playwright": "1.62.1" }
+}

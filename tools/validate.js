@@ -28,3 +28,4 @@ for (const t of EG.topics) {
 for (const p of EG.ielts) if (p.model) C.checkWriting(p.model).issues.forEach(x => { console.log('IELTS FP', p.q.slice(0,30), x.text, x.msg); problems++; });
 const n = EG.topics.reduce((a,t)=>a+(t.items||[]).length,0);
 console.log('topics', EG.topics.length, 'items', n, 'problems', problems);
+process.exitCode = problems ? 1 : 0;
